@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Love Countdown</title>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #ffb6c1, #e4a0f7);
+        color: white;
+        text-align: center;
+        padding-top: 60px;
+    }
+    .box {
+        width: 420px;
+        margin: auto;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 35px;
+        border-radius: 25px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0px 0px 25px #ffffff55;
+    }
+    h2 {
+        font-size: 30px;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    .subtxt {
+        font-size: 15px;
+        opacity: 0.9;
+        margin-bottom: 25px;
+    }
+    .time {
+        font-size: 26px;
+        margin: 15px 0;
+        font-weight: 500;
+    }
+    .progress {
+        width: 100%;
+        height: 22px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ff6a88, #ff99cc, #e289ff);
+        transition: 0.5s;
+    }
+    #percent {
+        margin-top: 12px;
+        font-size: 18px;
+        font-weight: 500;
+    }
+</style>
+</head>
+<body>
+
+<div class="box">
+    <h2>💗 Love Countdown 💗</h2>
+    <div class="subtxt">วันที่จะได้กอดกัน: 02/12/2025 เวลา 19:50</div>
+
+    <div id="remain" class="time"></div>
+
+    <div class="progress">
+        <div id="bar" class="progress-bar"></div>
+    </div>
+    <div id="percent"></div>
+</div>
+
+<script>
+    const startDate = new Date("2025-11-16 19:30:00");
+    const endDate   = new Date("2025-12-02 19:50:00");
+
+    function updateCountdown() {
+        const now = new Date();
+
+        const passed = now - startDate;
+        const total  = endDate - startDate;
+        const remain = endDate - now;
+
+        // Format time to d h m s
+        function format(ms) {
+            let s = Math.floor(ms / 1000);
+            let d = Math.floor(s / 86400);
+            s %= 86400;
+            let h = Math.floor(s / 3600);
+            s %= 3600;
+            let m = Math.floor(s / 60);
+            s %= 60;
+            return `${d} วัน ${h} ชั่วโมง ${m} นาที ${s} วินาที`;
+        }
+
+        // Show remaining time
+        document.getElementById("remain").innerHTML = 
+            "อีก " + format(remain) + " จะได้เจอกัน 💞";
+
+        // Percentage
+        let p = Math.min((passed / total) * 100, 100).toFixed(2);
+        document.getElementById("bar").style.width = p + "%";
+        document.getElementById("percent").innerHTML = p + "% of the wait";
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+</script>
+
+</body>
+</html>
