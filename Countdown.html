@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Countdown</title>
+<title>Love Countdown</title>
 <style>
     body {
         font-family: 'Poppins', sans-serif;
@@ -55,7 +55,6 @@
         font-weight: 500;
     }
 
-    /* Message Section */
     #messageSection {
         margin-top: 30px;
         text-align: left;
@@ -108,7 +107,6 @@
     </div>
     <div id="percent"></div>
 
-    <!-- Message Sender -->
     <div id="messageSection">
         <input type="text" id="msgInput" placeholder="พิมพ์ข้อความถึงเขา...">
         <button id="sendBtn" onclick="sendMessage()">ส่งข้อความ 💌</button>
@@ -118,6 +116,7 @@
 </div>
 
 <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwgA00d1SyfCIv5KW9NrqvWC-OkJmUlu2wgaeMEexhp1SOtfEWb5ZSNzWJ1jVD1lZc/exec";
     const startDate = new Date("2025-11-16 19:30:00");
     const endDate   = new Date("2025-12-02 19:50:00");
 
@@ -147,15 +146,9 @@
         document.getElementById("percent").innerHTML = p + "% of the wait";
     }
 
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
-
-
-    /* -------- MESSAGE SYSTEM -------- */
-    
-    function loadMessages() {
-        let stored = localStorage.getItem("love_messages");
-        let msgs = stored ? JSON.parse(stored) : [];
+    async function loadMessages() {
+        let res = await fetch(API_URL);
+        let msgs = await res.json();
 
         let box = document.getElementById("messagesBox");
         box.innerHTML = "";
@@ -163,28 +156,30 @@
         msgs.forEach(m => {
             let div = document.createElement("div");
             div.className = "msgItem";
-            div.innerText = m;
+            div.innerText = m.message;
             box.appendChild(div);
         });
     }
 
-    function sendMessage() {
+    async function sendMessage() {
         let input = document.getElementById("msgInput");
         let text = input.value.trim();
         if (text === "") return;
 
-        let stored = localStorage.getItem("love_messages");
-        let msgs = stored ? JSON.parse(stored) : [];
-
-        msgs.push(text);
-        localStorage.setItem("love_messages", JSON.stringify(msgs));
+        await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ message: text }),
+            headers: { "Content-Type": "application/json" }
+        });
 
         input.value = "";
         loadMessages();
     }
 
-    // Load messages on start
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
     loadMessages();
+    setInterval(loadMessages, 4000);
 </script>
 
 </body>
