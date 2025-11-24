@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Love Countdown</title>
 <style>
     body {
@@ -10,9 +11,11 @@
         color: white;
         text-align: center;
         padding-top: 60px;
+        margin: 0;
     }
     .box {
-        width: 420px;
+        max-width: 420px;
+        width: 90%;
         margin: auto;
         background: rgba(255, 255, 255, 0.15);
         padding: 35px;
@@ -61,21 +64,36 @@
         padding: 10px;
     }
     #msgInput {
-        width: 95%;
+        width: calc(100% - 24px);
         padding: 12px;
         border-radius: 15px;
         border: none;
         margin-bottom: 10px;
         font-size: 16px;
+        box-sizing: border-box;
     }
     #sendBtn {
         background: #ff6a88;
-        padding: 10px 18px;
+        padding: 12px 20px;
         border: none;
         border-radius: 15px;
         color: white;
         cursor: pointer;
         font-size: 16px;
+        font-weight: 500;
+        width: 100%;
+        transition: 0.3s;
+    }
+    #sendBtn:hover {
+        background: #ff5577;
+        transform: scale(1.02);
+    }
+    #sendBtn:active {
+        transform: scale(0.98);
+    }
+    #sendBtn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
     }
     #messagesBox {
         margin-top: 20px;
@@ -83,14 +101,33 @@
         background: rgba(255,255,255,0.2);
         padding: 15px;
         border-radius: 20px;
-        max-height: 200px;
+        max-height: 300px;
         overflow-y: auto;
+        text-align: left;
     }
     .msgItem {
         background: rgba(255,255,255,0.25);
-        padding: 8px 12px;
+        padding: 10px 14px;
         margin-bottom: 10px;
         border-radius: 12px;
+        word-wrap: break-word;
+    }
+    .timestamp {
+        font-size: 12px;
+        opacity: 0.8;
+        margin-top: 5px;
+    }
+    .loading {
+        opacity: 0.6;
+        text-align: center;
+        padding: 10px;
+    }
+    .error {
+        background: rgba(255, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
+        font-size: 14px;
     }
 </style>
 </head>
@@ -108,26 +145,28 @@
     <div id="percent"></div>
 
     <div id="messageSection">
-        <input type="text" id="msgInput" placeholder="พิมพ์ข้อความถึงเขา...">
-        <button id="sendBtn" onclick="sendMessage()">ส่งข้อความ 💌</button>
-
-        <div id="messagesBox"></div>
+        <input type="text" id="msgInput" placeholder="พิมพ์ข้อความถึงเขา..." />
+        <button id="sendBtn">ส่งข้อความ 💌</button>
+        <div id="errorMsg"></div>
+        <div id="messagesBox">
+            <div class="loading">กำลังโหลดข้อความ...</div>
+        </div>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwvd3m2g4sJ9sfs44o0Uecsv49zMEudDDUmgiIClAF8DADdsyeKGIc2dbEet94Rljo/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbywEBGt1HTu2biyze7ex3xZpRe_3Jq39w04s_hEGffCOkTKh8hh1vORKTSLjQu_fOY/exec";
     const startDate = new Date("2025-11-16 19:30:00");
     const endDate   = new Date("2025-12-02 19:50:00");
 
     function updateCountdown() {
         const now = new Date();
-
         const passed = now - startDate;
         const total  = endDate - startDate;
         const remain = endDate - now;
 
         function format(ms) {
+            if (ms < 0) ms = 0;
             let s = Math.floor(ms / 1000);
             let d = Math.floor(s / 86400);
             s %= 86400;
@@ -141,49 +180,103 @@
         document.getElementById("remain").innerHTML = 
             "อีก " + format(remain) + " จะได้เจอกัน 💞";
 
-        let p = Math.min((passed / total) * 100, 100).toFixed(2);
+        let p = Math.min(Math.max((passed / total) * 100, 0), 100).toFixed(2);
         document.getElementById("bar").style.width = p + "%";
         document.getElementById("percent").innerHTML = p + "% of the wait";
     }
 
     async function loadMessages() {
-        let res = await fetch(API_URL);
-        let msgs = await res.json();
+        try {
+            const res = await fetch(API_URL);
+            const msgs = await res.json();
 
-        let box = document.getElementById("messagesBox");
-        box.innerHTML = "";
+            const box = document.getElementById("messagesBox");
+            box.innerHTML = "";
 
-        msgs.forEach(m => {
-            let div = document.createElement("div");
-            div.className = "msgItem";
-            div.innerText = m.message;
-            box.appendChild(div);
-        });
+            if (!msgs || msgs.length === 0) {
+                box.innerHTML = '<div class="loading">ยังไม่มีข้อความ</div>';
+                return;
+            }
+
+            msgs.forEach(m => {
+                const div = document.createElement("div");
+                div.className = "msgItem";
+                div.innerHTML = `
+                    <div>${m.message}</div>
+                    ${m.timestamp ? `<div class="timestamp">${m.timestamp}</div>` : ''}
+                `;
+                box.appendChild(div);
+            });
+        } catch (error) {
+            console.error("Error loading messages:", error);
+            document.getElementById("messagesBox").innerHTML = 
+                '<div class="loading">ไม่สามารถโหลดข้อความได้</div>';
+        }
     }
 
     async function sendMessage() {
-        let input = document.getElementById("msgInput");
-        let text = input.value.trim();
-        if (text === "") return;
+        const input = document.getElementById("msgInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const errorMsg = document.getElementById("errorMsg");
+        const text = input.value.trim();
+        
+        errorMsg.innerHTML = "";
+        
+        if (text === "") {
+            errorMsg.innerHTML = '<div class="error">กรุณาพิมพ์ข้อความก่อนส่ง</div>';
+            return;
+        }
 
-        await fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify({ message: text }),
-            headers: { "Content-Type": "application/json" }
-        });
+        // ปิดการใช้งานปุ่มชั่วคราว
+        sendBtn.disabled = true;
+        sendBtn.textContent = "กำลังส่ง...";
 
-        input.value = "";
-        loadMessages();
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message: text }),
+                mode: 'no-cors' // เพิ่มบรรทัดนี้เพื่อหลีกเลี่ยง CORS
+            });
+
+            // เนื่องจากใช้ no-cors จะไม่สามารถอ่าน response ได้
+            // แต่ถ้าไม่ error แสดงว่าส่งสำเร็จ
+            input.value = "";
+            sendBtn.textContent = "ส่งสำเร็จ! 💚";
+            
+            // โหลดข้อความใหม่หลังจาก 1 วินาที
+            setTimeout(() => {
+                loadMessages();
+                sendBtn.textContent = "ส่งข้อความ 💌";
+                sendBtn.disabled = false;
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error sending message:", error);
+            errorMsg.innerHTML = '<div class="error">ไม่สามารถส่งข้อความได้ กรุณาลองใหม่</div>';
+            sendBtn.textContent = "ส่งข้อความ 💌";
+            sendBtn.disabled = false;
+        }
     }
 
+    // เพิ่ม Event Listener ให้ปุ่ม
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+
+    // เพิ่มการกด Enter เพื่อส่งข้อความ
+    document.getElementById("msgInput").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
+
+    // เริ่มต้น
     setInterval(updateCountdown, 1000);
     updateCountdown();
     loadMessages();
-    setInterval(loadMessages, 4000);
+    setInterval(loadMessages, 5000); // โหลดข้อความทุก 5 วินาที
 </script>
 
 </body>
 </html>
-
-
-
