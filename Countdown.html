@@ -1,198 +1,330 @@
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@300;400;600&display=swap');
-
-    :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --accent-pink: #ff758c;
-        --glass: rgba(255, 255, 255, 0.1);
-        --glass-border: rgba(255, 255, 255, 0.2);
-    }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: #0f0c29;
-        background: linear-gradient(to bottom, #24243e, #302b63, #0f0c29);
-        height: 100vh;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        overflow-x: hidden;
-    }
-
-    /* Floating Heart Animation */
-    @keyframes float {
-        0% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
-        50% { transform: translateY(-20px) rotate(10deg); opacity: 0.5; }
-        100% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
-    }
-
-    .box {
-        max-width: 450px;
-        width: 90%;
-        background: var(--glass);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid var(--glass-border);
-        border-radius: 30px;
-        padding: 40px;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-        position: relative;
-        z-index: 1;
-    }
-
-    h2 {
-        font-family: 'Dancing Script', cursive;
-        font-size: 42px;
-        margin: 0;
-        background: linear-gradient(to right, #ff758c 0%, #ff7eb3 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .subtxt {
-        font-size: 14px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        opacity: 0.7;
-        margin-bottom: 30px;
-    }
-
-    .time {
-        font-size: 20px;
-        font-weight: 300;
-        background: rgba(255,255,255,0.05);
-        padding: 15px;
-        border-radius: 15px;
-        margin: 20px 0;
-        border-left: 4px solid var(--accent-pink);
-    }
-
-    /* Progress Styling */
-    .progress-container { margin: 30px 0; }
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Countdown - New Look</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
-    .progress {
-        width: 100%;
-        height: 12px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-    }
+    <style>
+        :root {
+            --primary-pink: #ff8fa3;
+            --secondary-pink: #ffb3c1;
+            --bg-gradient: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
 
-    .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #ff758c, #ff7eb3);
-        box-shadow: 0 0 15px rgba(255, 117, 140, 0.5);
-        transition: width 1s ease-in-out;
-    }
+        body {
+            font-family: 'Poppins', 'Mitr', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow-x: hidden;
+            color: #4a4a4a;
+        }
 
-    #percent {
-        margin-top: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--accent-pink);
-    }
+        /* แอนิเมชันหัวใจลอยพื้นหลัง */
+        .heart-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
 
-    /* Message Section */
-    #messageSection { margin-top: 40px; }
+        /* Container หลัก */
+        .container {
+            width: 90%;
+            max-width: 450px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            animation: fadeIn 1.2s ease-out;
+        }
 
-    .input-wrapper {
-        display: flex;
-        gap: 10px;
-        background: rgba(255,255,255,0.08);
-        padding: 8px;
-        border-radius: 20px;
-        border: 1px solid var(--glass-border);
-    }
+        h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
-    #msgInput {
-        flex: 1;
-        background: transparent;
-        border: none;
-        padding: 10px 15px;
-        color: white;
-        outline: none;
-        font-size: 15px;
-    }
+        .subtxt {
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
+            letter-spacing: 0.5px;
+        }
 
-    #sendBtn {
-        background: var(--accent-pink);
-        border: none;
-        padding: 10px 20px;
-        border-radius: 15px;
-        color: white;
-        cursor: pointer;
-        transition: 0.3s;
-        font-weight: 600;
-    }
+        /* ส่วนตัวเลข Countdown */
+        .countdown-display {
+            background: rgba(255,255,255,0.4);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
 
-    #sendBtn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(255, 117, 140, 0.4);
-    }
+        .time-units {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ff6b81;
+            line-height: 1.6;
+        }
 
-    #messagesBox {
-        margin-top: 25px;
-        max-height: 200px;
-        overflow-y: auto;
-        padding-right: 10px;
-        text-align: left;
-    }
+        /* Progress Bar ใหม่ */
+        .progress-container {
+            position: relative;
+            height: 12px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            margin: 40px 0 10px 0;
+        }
 
-    /* Custom Scrollbar */
-    #messagesBox::-webkit-scrollbar { width: 5px; }
-    #messagesBox::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff8fa3, #ffb3c1);
+            border-radius: 10px;
+            position: relative;
+            transition: width 1s ease-in-out;
+        }
 
-    .msgItem {
-        background: rgba(255,255,255,0.05);
-        padding: 12px 15px;
-        border-radius: 15px;
-        margin-bottom: 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        animation: fadeIn 0.5s ease;
-    }
+        .progress-bar::after {
+            content: '❤️';
+            position: absolute;
+            right: -10px;
+            top: -22px;
+            font-size: 20px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+        #percent {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+        }
 
-    .timestamp {
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-top: 8px;
-        color: var(--accent-pink);
-        font-weight: 600;
-    }
-</style>
+        /* ส่วนส่งข้อความ */
+        .message-section {
+            margin-top: 40px;
+        }
 
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #msgInput {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 15px;
+            border: none;
+            outline: none;
+            background: rgba(255,255,255,0.8);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        #sendBtn {
+            background: #ff8fa3;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #sendBtn:hover {
+            background: #ff758f;
+            transform: scale(1.05);
+        }
+
+        /* กล่องข้อความแบบ Chat Bubble */
+        #messagesBox {
+            max-height: 250px;
+            overflow-y: auto;
+            text-align: left;
+            padding-right: 5px;
+        }
+
+        #messagesBox::-webkit-scrollbar {
+            width: 5px;
+        }
+        #messagesBox::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+        }
+
+        .msgItem {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 18px 18px 18px 5px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .timestamp {
+            font-size: 10px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
 <body>
 
-<div class="box">
-    <h2>Forever & Always</h2>
-    <div class="subtxt">Countdown to Hugs 🤗</div>
+<div class="heart-bg" id="heartBg"></div>
 
-    <div id="remain" class="time">Calculating magic...</div>
+<div class="container">
+    <h2>💗 We're Waiting... 💗</h2>
+    <div class="subtxt">จะได้กอดกันวันที่ 09/01/2026 ตอน 19:50 น.</div>
 
-    <div class="progress-container">
-        <div class="progress">
-            <div id="bar" class="progress-bar"></div>
-        </div>
-        <div id="percent">0% of the wait</div>
+    <div class="countdown-display">
+        <div id="remain" class="time-units">กำลังคำนวณเวลา...</div>
     </div>
 
-    <div id="messageSection">
-        <div class="input-wrapper">
-            <input id="msgInput" placeholder="Write a love note..." />
-            <button id="sendBtn">Send 💌</button>
+    <div class="progress-container">
+        <div id="bar" class="progress-bar"></div>
+    </div>
+    <div id="percent">0% of the wait</div>
+
+    <div class="message-section">
+        <div class="input-group">
+            <input id="msgInput" placeholder="เขียนความรู้สึกของคุณ..." />
+            <button id="sendBtn">ส่ง 💌</button>
         </div>
-        <div id="messagesBox">Loading sweet words...</div>
+        <div id="messagesBox">กำลังโหลดความทรงจำ...</div>
     </div>
 </div>
 
-<div style="position:fixed; top:10%; left:10%; font-size:40px; animation: float 6s infinite ease-in-out;">🌸</div>
-<div style="position:fixed; bottom:20%; right:15%; font-size:30px; animation: float 8s infinite ease-in-out; animation-delay: 1s;">✨</div>
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwvd3m2g4sJ9sfs44o0Uecsv49zMEudDDUmgiIClAF8DADdsyeKGIc2dbEet94Rljo/exec";
+
+const startDate = new Date("2025-12-23T08:30:00");
+const endDate   = new Date("2026-01-09T19:50:00");
+
+// ฟังก์ชันสร้างหัวใจลอยๆ
+function createHeart() {
+    const heart = document.createElement("div");
+    heart.innerHTML = "❤️";
+    heart.style.position = "fixed";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.top = "100vh";
+    heart.style.fontSize = Math.random() * 20 + 10 + "px";
+    heart.style.opacity = Math.random() * 0.5;
+    heart.style.transition = "transform 5s linear, opacity 5s";
+    document.getElementById("heartBg").appendChild(heart);
+
+    setTimeout(() => {
+        heart.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
+        heart.style.opacity = "0";
+    }, 100);
+
+    setTimeout(() => heart.remove(), 6000);
+}
+setInterval(createHeart, 800);
+
+function updateCountdown() {
+    const now = new Date();
+    const passed = now - startDate;
+    const total  = endDate - startDate;
+    const remain = endDate - now;
+
+    function format(ms) {
+        if (ms < 0) return "ถึงเวลาเจอกันแล้ว! ✨";
+        let s = Math.floor(ms / 1000);
+        let d = Math.floor(s / 86400);
+        s %= 86400;
+        let h = Math.floor(s / 3600);
+        s %= 3600;
+        let m = Math.floor(s / 60);
+        s %= 60;
+        return `${d} วัน ${h} ชม. ${m} นาที ${s} วิ`;
+    }
+
+    document.getElementById("remain").innerHTML = format(remain);
+
+    let p = Math.min(Math.max((passed / total) * 100, 0), 100).toFixed(2);
+    document.getElementById("bar").style.width = p + "%";
+    document.getElementById("percent").innerText = `อดทนอีกนิดนะ.. ผ่านมาแล้ว ${p}%`;
+}
+
+async function loadMessages() {
+    try {
+        const res = await fetch(API_URL);
+        const msgs = await res.json();
+        const box = document.getElementById("messagesBox");
+        box.innerHTML = "";
+
+        msgs.reverse().forEach(m => {
+            box.innerHTML += `
+                <div class="msgItem">
+                    <div>${m.message}</div>
+                    <div class="timestamp">📅 ${m.timestamp || ""}</div>
+                </div>`;
+        });
+    } catch (e) {
+        console.log("Error loading messages");
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById("msgInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    const btn = document.getElementById("sendBtn");
+    btn.disabled = true;
+    btn.innerText = "⏳";
+
+    try {
+        await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ message: text }),
+            headers: { "Content-Type": "application/json" },
+            mode: "no-cors"
+        });
+        input.value = "";
+        setTimeout(loadMessages, 1000);
+    } catch (e) {}
+
+    btn.disabled = false;
+    btn.innerText = "ส่ง 💌";
+}
+
+document.getElementById("sendBtn").onclick = sendMessage;
+document.getElementById("msgInput").addEventListener("keypress", e => {
+    if (e.key === "Enter") sendMessage();
+});
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+loadMessages();
+setInterval(loadMessages, 10000); // โหลดใหม่ทุก 10 วิ
+</script>
+
+</body>
+</html>
