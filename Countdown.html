@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Love Countdown - New Look</title>
+    <title>Love Countdown - 09/01/2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
@@ -28,7 +28,6 @@
             color: #4a4a4a;
         }
 
-        /* แอนิเมชันหัวใจลอยพื้นหลัง */
         .heart-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -36,7 +35,6 @@
             pointer-events: none;
         }
 
-        /* Container หลัก */
         .container {
             width: 90%;
             max-width: 450px;
@@ -52,7 +50,7 @@
         }
 
         h2 {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 600;
             color: #fff;
             margin-bottom: 5px;
@@ -60,13 +58,13 @@
         }
 
         .subtxt {
-            font-size: 14px;
+            font-size: 16px;
             color: rgba(255,255,255,0.9);
             margin-bottom: 30px;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            font-weight: 300;
         }
 
-        /* ส่วนตัวเลข Countdown */
         .countdown-display {
             background: rgba(255,255,255,0.4);
             border-radius: 20px;
@@ -81,7 +79,6 @@
             line-height: 1.6;
         }
 
-        /* Progress Bar ใหม่ */
         .progress-container {
             position: relative;
             height: 12px;
@@ -105,7 +102,6 @@
             right: -10px;
             top: -22px;
             font-size: 20px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
 
         #percent {
@@ -114,7 +110,6 @@
             color: #fff;
         }
 
-        /* ส่วนส่งข้อความ */
         .message-section {
             margin-top: 40px;
         }
@@ -132,7 +127,6 @@
             border: none;
             outline: none;
             background: rgba(255,255,255,0.8);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
 
         #sendBtn {
@@ -145,25 +139,11 @@
             transition: 0.3s;
         }
 
-        #sendBtn:hover {
-            background: #ff758f;
-            transform: scale(1.05);
-        }
-
-        /* กล่องข้อความแบบ Chat Bubble */
         #messagesBox {
             max-height: 250px;
             overflow-y: auto;
             text-align: left;
             padding-right: 5px;
-        }
-
-        #messagesBox::-webkit-scrollbar {
-            width: 5px;
-        }
-        #messagesBox::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.5);
-            border-radius: 10px;
         }
 
         .msgItem {
@@ -173,7 +153,7 @@
             margin-bottom: 12px;
             font-size: 14px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            animation: slideUp 0.4s ease-out;
+            border-left: 4px solid #ff8fa3;
         }
 
         .timestamp {
@@ -186,12 +166,6 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
     </style>
 </head>
 <body>
@@ -199,11 +173,11 @@
 <div class="heart-bg" id="heartBg"></div>
 
 <div class="container">
-    <h2>💗 We're Waiting... 💗</h2>
-    <div class="subtxt">จะได้กอดกันวันที่ 09/01/2026 ตอน 19:50 น.</div>
+    <h2>💗 09 / 01 / 2026 💗</h2>
+    <div class="subtxt">The day we meet again</div>
 
     <div class="countdown-display">
-        <div id="remain" class="time-units">กำลังคำนวณเวลา...</div>
+        <div id="remain" class="time-units">Calculating time...</div>
     </div>
 
     <div class="progress-container">
@@ -213,10 +187,10 @@
 
     <div class="message-section">
         <div class="input-group">
-            <input id="msgInput" placeholder="เขียนความรู้สึกของคุณ..." />
+            <input id="msgInput" placeholder="Say something sweet..." />
             <button id="sendBtn">ส่ง 💌</button>
         </div>
-        <div id="messagesBox">กำลังโหลดความทรงจำ...</div>
+        <div id="messagesBox">Loading messages...</div>
     </div>
 </div>
 
@@ -226,7 +200,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwvd3m2g4sJ9sfs44o0Uecs
 const startDate = new Date("2025-12-23T08:30:00");
 const endDate   = new Date("2026-01-09T19:50:00");
 
-// ฟังก์ชันสร้างหัวใจลอยๆ
+// Floating Hearts background
 function createHeart() {
     const heart = document.createElement("div");
     heart.innerHTML = "❤️";
@@ -237,12 +211,10 @@ function createHeart() {
     heart.style.opacity = Math.random() * 0.5;
     heart.style.transition = "transform 5s linear, opacity 5s";
     document.getElementById("heartBg").appendChild(heart);
-
     setTimeout(() => {
         heart.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
         heart.style.opacity = "0";
     }, 100);
-
     setTimeout(() => heart.remove(), 6000);
 }
 setInterval(createHeart, 800);
@@ -254,7 +226,7 @@ function updateCountdown() {
     const remain = endDate - now;
 
     function format(ms) {
-        if (ms < 0) return "ถึงเวลาเจอกันแล้ว! ✨";
+        if (ms < 0) return "It's time! ✨";
         let s = Math.floor(ms / 1000);
         let d = Math.floor(s / 86400);
         s %= 86400;
@@ -262,16 +234,17 @@ function updateCountdown() {
         s %= 3600;
         let m = Math.floor(s / 60);
         s %= 60;
-        return `${d} วัน ${h} ชม. ${m} นาที ${s} วิ`;
+        return `${d}d ${h}h ${m}m ${s}s`;
     }
 
     document.getElementById("remain").innerHTML = format(remain);
 
     let p = Math.min(Math.max((passed / total) * 100, 0), 100).toFixed(2);
     document.getElementById("bar").style.width = p + "%";
-    document.getElementById("percent").innerText = `อดทนอีกนิดนะ.. ผ่านมาแล้ว ${p}%`;
+    document.getElementById("percent").innerText = `Progress: ${p}%`;
 }
 
+// Sorting logic: Newest at the top
 async function loadMessages() {
     try {
         const res = await fetch(API_URL);
@@ -279,15 +252,16 @@ async function loadMessages() {
         const box = document.getElementById("messagesBox");
         box.innerHTML = "";
 
+        // Reverse to show the latest message first
         msgs.reverse().forEach(m => {
             box.innerHTML += `
                 <div class="msgItem">
                     <div>${m.message}</div>
-                    <div class="timestamp">📅 ${m.timestamp || ""}</div>
+                    <div class="timestamp">🕒 ${m.timestamp || ""}</div>
                 </div>`;
         });
     } catch (e) {
-        console.log("Error loading messages");
+        console.log("Error fetching messages");
     }
 }
 
@@ -298,7 +272,6 @@ async function sendMessage() {
 
     const btn = document.getElementById("sendBtn");
     btn.disabled = true;
-    btn.innerText = "⏳";
 
     try {
         await fetch(API_URL, {
@@ -308,11 +281,11 @@ async function sendMessage() {
             mode: "no-cors"
         });
         input.value = "";
-        setTimeout(loadMessages, 1000);
+        // Brief delay before refresh to allow DB update
+        setTimeout(loadMessages, 1500);
     } catch (e) {}
 
     btn.disabled = false;
-    btn.innerText = "ส่ง 💌";
 }
 
 document.getElementById("sendBtn").onclick = sendMessage;
@@ -323,7 +296,7 @@ document.getElementById("msgInput").addEventListener("keypress", e => {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 loadMessages();
-setInterval(loadMessages, 10000); // โหลดใหม่ทุก 10 วิ
+setInterval(loadMessages, 10000);
 </script>
 
 </body>
