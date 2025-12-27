@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Love Countdown - 09/01/2026</title>
+    <title>09/01/2026 - Countdown</title>
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary-pink: #ff8fa3;
-            --secondary-pink: #ffb3c1;
+            --accent-pink: #ff4d6d;
             --bg-gradient: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
-            --glass-bg: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass: rgba(255, 255, 255, 0.25);
         }
 
         body {
@@ -24,7 +23,6 @@
             align-items: center;
             justify-content: center;
             margin: 0;
-            overflow-x: hidden;
             color: #4a4a4a;
         }
 
@@ -37,60 +35,70 @@
 
         .container {
             width: 90%;
-            max-width: 450px;
-            background: var(--glass-bg);
+            max-width: 420px;
+            background: var(--glass);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid rgba(255,255,255,0.4);
             border-radius: 30px;
-            padding: 40px 30px;
+            padding: 35px 25px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             text-align: center;
-            animation: fadeIn 1.2s ease-out;
         }
 
         h2 {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .subtxt {
-            font-size: 16px;
+            font-size: 14px;
             color: rgba(255,255,255,0.9);
-            margin-bottom: 30px;
-            letter-spacing: 1px;
-            font-weight: 300;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* Percentage Badge */
+        .percent-badge {
+            display: inline-block;
+            background: #fff;
+            color: var(--accent-pink);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(255, 77, 109, 0.2);
         }
 
         .countdown-display {
-            background: rgba(255,255,255,0.4);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .time-units {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
             color: #ff6b81;
-            line-height: 1.6;
+            background: rgba(255,255,255,0.4);
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 20px;
         }
 
+        /* Progress Bar Area */
         .progress-container {
             position: relative;
-            height: 12px;
+            height: 14px;
             background: rgba(255,255,255,0.3);
             border-radius: 10px;
-            margin: 40px 0 10px 0;
+            margin: 10px 0 40px 0;
         }
 
         .progress-bar {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #ff8fa3, #ffb3c1);
+            background: linear-gradient(90deg, #ff8fa3, #ff4d6d);
             border-radius: 10px;
             position: relative;
             transition: width 1s ease-in-out;
@@ -99,30 +107,22 @@
         .progress-bar::after {
             content: '❤️';
             position: absolute;
-            right: -10px;
-            top: -22px;
+            right: -12px;
+            top: -6px;
             font-size: 20px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
         }
 
-        #percent {
-            font-size: 14px;
-            font-weight: 500;
-            color: #fff;
-        }
-
-        .message-section {
-            margin-top: 40px;
-        }
-
+        /* Messages */
         .input-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 20px;
         }
 
         #msgInput {
             flex: 1;
-            padding: 12px 18px;
+            padding: 12px 15px;
             border-radius: 15px;
             border: none;
             outline: none;
@@ -130,41 +130,35 @@
         }
 
         #sendBtn {
-            background: #ff8fa3;
+            background: var(--accent-pink);
             border: none;
-            padding: 12px 18px;
+            padding: 0 20px;
             border-radius: 15px;
             color: white;
             cursor: pointer;
-            transition: 0.3s;
+            font-weight: 500;
         }
 
         #messagesBox {
-            max-height: 250px;
+            max-height: 200px;
             overflow-y: auto;
             text-align: left;
-            padding-right: 5px;
         }
 
         .msgItem {
             background: white;
-            padding: 12px 15px;
-            border-radius: 18px 18px 18px 5px;
-            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 15px 15px 15px 5px;
+            margin-bottom: 10px;
             font-size: 14px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            border-left: 4px solid #ff8fa3;
+            border-left: 5px solid var(--accent-pink);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .timestamp {
             font-size: 10px;
-            color: #aaa;
-            margin-top: 5px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            color: #999;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -173,24 +167,25 @@
 <div class="heart-bg" id="heartBg"></div>
 
 <div class="container">
-    <h2>💗 09 / 01 / 2026 💗</h2>
+    <h2>09 / 01 / 2026</h2>
     <div class="subtxt">The day we meet again</div>
 
-    <div class="countdown-display">
-        <div id="remain" class="time-units">Calculating time...</div>
+    <div id="percentBadge" class="percent-badge">0.00%</div>
+
+    <div class="countdown-display" id="remain">
+        Calculating...
     </div>
 
     <div class="progress-container">
         <div id="bar" class="progress-bar"></div>
     </div>
-    <div id="percent">0% of the wait</div>
 
     <div class="message-section">
         <div class="input-group">
-            <input id="msgInput" placeholder="Say something sweet..." />
-            <button id="sendBtn">ส่ง 💌</button>
+            <input id="msgInput" placeholder="Write a note..." maxlength="100"/>
+            <button id="sendBtn">Send 💌</button>
         </div>
-        <div id="messagesBox">Loading messages...</div>
+        <div id="messagesBox">Loading...</div>
     </div>
 </div>
 
@@ -200,24 +195,23 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwvd3m2g4sJ9sfs44o0Uecs
 const startDate = new Date("2025-12-23T08:30:00");
 const endDate   = new Date("2026-01-09T19:50:00");
 
-// Floating Hearts background
 function createHeart() {
     const heart = document.createElement("div");
     heart.innerHTML = "❤️";
     heart.style.position = "fixed";
     heart.style.left = Math.random() * 100 + "vw";
     heart.style.top = "100vh";
-    heart.style.fontSize = Math.random() * 20 + 10 + "px";
-    heart.style.opacity = Math.random() * 0.5;
-    heart.style.transition = "transform 5s linear, opacity 5s";
+    heart.style.fontSize = Math.random() * 15 + 10 + "px";
+    heart.style.opacity = Math.random() * 0.4;
+    heart.style.transition = "transform 6s linear, opacity 6s";
     document.getElementById("heartBg").appendChild(heart);
     setTimeout(() => {
         heart.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
         heart.style.opacity = "0";
     }, 100);
-    setTimeout(() => heart.remove(), 6000);
+    setTimeout(() => heart.remove(), 7000);
 }
-setInterval(createHeart, 800);
+setInterval(createHeart, 1000);
 
 function updateCountdown() {
     const now = new Date();
@@ -237,14 +231,13 @@ function updateCountdown() {
         return `${d}d ${h}h ${m}m ${s}s`;
     }
 
-    document.getElementById("remain").innerHTML = format(remain);
+    document.getElementById("remain").innerText = format(remain);
 
     let p = Math.min(Math.max((passed / total) * 100, 0), 100).toFixed(2);
     document.getElementById("bar").style.width = p + "%";
-    document.getElementById("percent").innerText = `Progress: ${p}%`;
+    document.getElementById("percentBadge").innerText = p + "%";
 }
 
-// Sorting logic: Newest at the top
 async function loadMessages() {
     try {
         const res = await fetch(API_URL);
@@ -252,7 +245,7 @@ async function loadMessages() {
         const box = document.getElementById("messagesBox");
         box.innerHTML = "";
 
-        // Reverse to show the latest message first
+        // Sort: Latest first
         msgs.reverse().forEach(m => {
             box.innerHTML += `
                 <div class="msgItem">
@@ -260,9 +253,7 @@ async function loadMessages() {
                     <div class="timestamp">🕒 ${m.timestamp || ""}</div>
                 </div>`;
         });
-    } catch (e) {
-        console.log("Error fetching messages");
-    }
+    } catch (e) { console.log("Load error"); }
 }
 
 async function sendMessage() {
@@ -281,10 +272,8 @@ async function sendMessage() {
             mode: "no-cors"
         });
         input.value = "";
-        // Brief delay before refresh to allow DB update
-        setTimeout(loadMessages, 1500);
+        setTimeout(loadMessages, 1200);
     } catch (e) {}
-
     btn.disabled = false;
 }
 
@@ -296,7 +285,7 @@ document.getElementById("msgInput").addEventListener("keypress", e => {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 loadMessages();
-setInterval(loadMessages, 10000);
+setInterval(loadMessages, 15000);
 </script>
 
 </body>
