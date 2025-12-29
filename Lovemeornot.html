@@ -14,6 +14,7 @@
             background-color: #FFDEE9;
             background-image: linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%);
             font-family: 'Arial', sans-serif;
+            overflow: hidden; /* กันปุ่มหนีออกนอกจอแล้วมี scrollbar */
         }
         .card {
             background: white;
@@ -22,9 +23,16 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             text-align: center;
             width: 300px;
+            z-index: 1;
         }
-        h1 { color: #ff4d6d; font-size: 24px; }
-        .buttons { margin-top: 20px; position: relative; height: 50px; }
+        h1 { color: #ff4d6d; font-size: 24px; position: relative; z-index: 10; }
+        .buttons { 
+            margin-top: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            gap: 15px;
+        }
         
         button {
             padding: 10px 25px;
@@ -32,10 +40,20 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: transform 0.2s ease; /* เพิ่ม transition ให้ปุ่มขยายแบบนุ่มนวล */
         }
-        #yesBtn { background-color: #4CAF50; color: white; margin-right: 10px; }
-        #noBtn { background-color: #f44336; color: white; position: absolute; }
+        #yesBtn { 
+            background-color: #4CAF50; 
+            color: white; 
+            z-index: 100; /* ให้ปุ่ม LOVE อยู่ข้างบนเสมอ */
+        }
+        #noBtn { 
+            background-color: #f44336; 
+            color: white; 
+            position: absolute; 
+            z-index: 10;
+        }
+        img { border-radius: 15px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -50,19 +68,32 @@
     </div>
 
     <script>
+        let loveScale = 1; // เริ่มต้นที่ขนาดปกติ (100%)
+
         function moveButton() {
-            const btn = document.getElementById('noBtn');
-            // สุ่มตำแหน่งใหม่ให้ปุ่มหนีไปเรื่อยๆ
-            const x = Math.random() * (window.innerWidth - btn.clientWidth);
-            const y = Math.random() * (window.innerHeight - btn.clientHeight);
-            
-            btn.style.left = x + 'px';
-            btn.style.top = y + 'px';
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+
+            // 1. สุ่มตำแหน่งใหม่ให้ปุ่ม NO หนี
+            const x = Math.random() * (window.innerWidth - noBtn.clientWidth);
+            const y = Math.random() * (window.innerHeight - noBtn.clientHeight);
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+
+            // 2. ขยายปุ่ม LOVE ขึ้นเรื่อยๆ ทุกครั้งที่ปุ่ม NO หนี
+            loveScale += 0.4; // เพิ่มขนาดขึ้นทีละ 40% (ปรับตัวเลขได้ตามความสะใจครับ)
+            yesBtn.style.transform = `scale(${loveScale})`;
         }
 
         function answeredYes() {
-            alert("เค้าก็รักตัวเองนะ! จุ๊บๆ 😘");
-            document.querySelector('.card').innerHTML = "<h1>เย้! รักที่สุดเลย ❤️</h1><img src='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZ1JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/v6aOjy0Qo1fIA/giphy.gif' width='200'>";
+            // เมื่อกดปุ่ม LOVE แล้วจะแสดงข้อความดีใจ
+            document.body.innerHTML = `
+                <div class="card">
+                    <h1>เย้! รักที่สุดเลย ❤️</h1>
+                    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZ1JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/v6aOjy0Qo1fIA/giphy.gif" width="200">
+                    <p style="color: #ff4d6d; font-weight: bold;">เค้าก็รักตัวเองนะ! จุ๊บๆ 😘</p>
+                </div>
+            `;
         }
     </script>
 </body>
