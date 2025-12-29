@@ -37,18 +37,20 @@ body {
     text-align: center;
     box-shadow: 0 20px 40px rgba(0,0,0,.15);
     position: relative;
+    z-index: 10;
 }
 
 h1 {
-    font-size: clamp(20px, 5vw, 26px);
+    font-size: clamp(20px, 5vw, 24px);
     color: #ff4d6d;
     min-height: 72px;
+    transition: 0.3s;
 }
 
 .buttons {
     margin-top: 18px;
     position: relative;
-    height: 120px;
+    height: 140px;
 }
 
 button {
@@ -58,44 +60,58 @@ button {
     border: none;
     font-weight: bold;
     cursor: pointer;
-    transition: transform .25s ease, box-shadow .25s ease;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
 }
 
 #yesBtn {
     background: #ff4d6d;
     color: white;
+    box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
 }
 
 #noBtn {
     background: #999;
     color: white;
     position: absolute;
-    left: 55%;
-    top: 55%;
+    left: 50%;
+    top: 50%;
     transform: translate(-50%, -50%);
+    z-index: 5;
+}
+
+/* เอฟเฟกต์รูปเด้ง */
+.pop {
+    animation: pop .4s ease;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.8) rotate(-5deg); }
+    60% { transform: scale(1.15) rotate(5deg); }
+    100% { transform: scale(1); }
 }
 
 .shake {
-    animation: shake .4s;
+    animation: shake .3s;
 }
 
 @keyframes shake {
-    0% { transform: translate(0,0); }
-    25% { transform: translate(3px,0); }
-    50% { transform: translate(-3px,0); }
-    100% { transform: translate(0,0); }
+    0%, 100% { transform: translate(0,0); }
+    25% { transform: translate(4px,0); }
+    75% { transform: translate(-4px,0); }
 }
 
 .final-img {
     width: min(70vw, 240px);
     border-radius: 18px;
     margin-top: 16px;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     animation: heartbeat 1.5s infinite;
 }
 
 @keyframes heartbeat {
     0%,100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    50% { transform: scale(1.06); }
 }
 </style>
 </head>
@@ -104,7 +120,7 @@ button {
 
 <div class="card" id="card">
     <img id="memeGif"
-         src="https://media.giphy.com/media/cLS1cfxvGOPVpf9g3y/giphy.gif"
+         src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZ1JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/cLS1cfxvGOPVpf9g3y/giphy.gif"
          width="140">
     <h1 id="question">เธอรักเค้ามั้ยยย ❤️</h1>
 
@@ -122,17 +138,39 @@ button {
 let noCount = 0;
 let loveScale = 1;
 
+// รายการ GIF กวนๆ
+const memeGifs = [
+  "https://media.giphy.com/media/cLS1cfxvGOPVpf9g3y/giphy.gif",
+  "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+  "https://media.giphy.com/media/l3vR85PnGsBwu1PFK/giphy.gif",
+  "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif",
+  "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif",
+  "https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif"
+];
+
 const texts = [
     "ทำไมต้องหนีเค้าด้วย 🥺",
     "แน่ใจนะว่าไม่รัก 😏",
     "ปุ่มมันใหญ่ขนาดนี้แล้วนะ!",
     "เริ่มงอนละจริง ๆ 😤",
-    "โอเค… เค้ารู้แล้ว 💖"
+    "ถ้ายังไม่กด LOVE จะร้องไห้ละนะ!"
 ];
+
+function randomGif() {
+    const gif = document.getElementById("memeGif");
+    const index = Math.floor(Math.random() * memeGifs.length);
+    gif.src = memeGifs[index];
+    
+    // รีเซ็ตแอนิเมชัน
+    gif.classList.remove("pop");
+    void gif.offsetWidth; 
+    gif.classList.add("pop");
+}
 
 function moveNo() {
     const btn = document.getElementById("noBtn");
     const area = document.getElementById("btnArea");
+    const card = document.getElementById("card");
 
     const maxX = area.clientWidth - btn.clientWidth;
     const maxY = area.clientHeight - btn.clientHeight;
@@ -140,18 +178,26 @@ function moveNo() {
     btn.style.left = Math.random() * maxX + "px";
     btn.style.top  = Math.random() * maxY + "px";
 
-    document.getElementById("card").classList.add("shake");
-    setTimeout(()=>document.getElementById("card").classList.remove("shake"),300);
+    // เขย่าหน้าจอและเปลี่ยน GIF
+    card.classList.add("shake");
+    setTimeout(()=>card.classList.remove("shake"), 300);
+    randomGif();
 
     noCount++;
 
-    // ขยาย LOVE แบบจำกัดขอบเขต
-    const maxScale = Math.min(window.innerWidth / 140, 2.6);
-    loveScale = Math.min(loveScale + 0.15, maxScale);
-    document.getElementById("yesBtn").style.transform = `scale(${loveScale})`;
+    // ขยาย LOVE แบบเร้าใจ
+    const maxScale = Math.min(window.innerWidth / 130, 2.5);
+    loveScale = Math.min(loveScale + 0.25, maxScale);
+    const yesBtn = document.getElementById("yesBtn");
+    yesBtn.style.transform = `scale(${loveScale})`;
+    
+    // เพิ่มความเรืองแสงให้ปุ่ม LOVE
+    yesBtn.style.boxShadow = `0 0 ${loveScale * 15}px rgba(255, 77, 109, 0.6)`;
 
     if(noCount < texts.length){
         document.getElementById("question").innerText = texts[noCount];
+    } else {
+        document.getElementById("question").innerText = "หนีไม่พ้นหรอก กด LOVE เหอะ! 😳💥";
     }
 }
 
@@ -163,13 +209,27 @@ function noClicked(){
 }
 
 function answeredYes(){
-    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+    // พลุจัดเต็ม
+    const count = 200;
+    const defaults = { origin: { y: 0.7 } };
+
+    function fire(particleRatio, opts) {
+      confetti(Object.assign({}, defaults, opts, {
+        particleCount: Math.floor(count * particleRatio)
+      }));
+    }
+
+    fire(0.25, { spread: 26, startVelocity: 55 });
+    fire(0.2, { spread: 60 });
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
 
     document.getElementById("card").innerHTML = `
-        <h1>เย้! เค้าก็รักเธอที่สุด 💖</h1>
+        <h1 style="min-height: auto; margin-bottom: 10px;">เย้! เค้าก็รักเธอที่สุด 💖</h1>
+        <img src="https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif" width="160" style="margin-bottom:10px;">
+        <br>
         <img src="211C2D12-E93C-4EA1-A633-3D5A99E60C4E.jpeg" class="final-img">
-        <p style="margin-top:16px;font-size:18px;color:#ff4d6d;">
-            คิดถึงนะ ❤️ 
+        <p style="margin-top:16px;font-size:20px;color:#ff4d6d;font-weight:bold;">
+            คิดถึงนะ ❤️<br>
             พัตเตอร์รักเปรมที่สุดเลย
         </p>
     `;
