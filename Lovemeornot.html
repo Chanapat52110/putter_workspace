@@ -2,58 +2,100 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>รักเค้ามั้ยยย</title>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <style>
+* { box-sizing: border-box; }
+
 body {
+    margin: 0;
+    height: 100svh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    background: linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%);
-    font-family: Arial, sans-serif;
+    background: linear-gradient(-45deg, #FFDEE9, #B5FFFC, #ffc3a0, #ffafbd);
+    background-size: 400% 400%;
+    animation: gradient 12s ease infinite;
+    font-family: 'Kanit', Arial, sans-serif;
+    overflow: hidden;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .card {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    width: min(92vw, 360px);
+    padding: 28px 22px 32px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 26px;
     text-align: center;
-    width: 350px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.15);
+    position: relative;
 }
 
 h1 {
+    font-size: clamp(20px, 5vw, 26px);
     color: #ff4d6d;
-    font-size: 24px;
+    min-height: 72px;
 }
 
 .buttons {
-    margin-top: 20px;
+    margin-top: 18px;
     position: relative;
-    height: 140px;
+    height: 120px;
 }
 
 button {
-    padding: 12px 28px;
+    padding: 14px 30px;
     font-size: 18px;
+    border-radius: 999px;
     border: none;
-    border-radius: 12px;
+    font-weight: bold;
     cursor: pointer;
-    transition: 0.3s ease;
+    transition: transform .25s ease, box-shadow .25s ease;
 }
 
 #yesBtn {
-    background-color: #4CAF50;
+    background: #ff4d6d;
     color: white;
 }
 
 #noBtn {
-    background-color: #f44336;
+    background: #999;
     color: white;
     position: absolute;
+    left: 55%;
+    top: 55%;
+    transform: translate(-50%, -50%);
+}
+
+.shake {
+    animation: shake .4s;
+}
+
+@keyframes shake {
+    0% { transform: translate(0,0); }
+    25% { transform: translate(3px,0); }
+    50% { transform: translate(-3px,0); }
+    100% { transform: translate(0,0); }
+}
+
+.final-img {
+    width: min(70vw, 240px);
+    border-radius: 18px;
+    margin-top: 16px;
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 </style>
 </head>
@@ -61,78 +103,74 @@ button {
 <body>
 
 <div class="card" id="card">
-    <!-- GIF หน้าแรก -->
     <img id="memeGif"
-         src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif"
-         width="160">
-
+         src="https://media.giphy.com/media/cLS1cfxvGOPVpf9g3y/giphy.gif"
+         width="140">
     <h1 id="question">เธอรักเค้ามั้ยยย ❤️</h1>
 
-    <div class="buttons">
+    <div class="buttons" id="btnArea">
         <button id="yesBtn" onclick="answeredYes()">LOVE</button>
-        <button id="noBtn" onclick="noClicked()" onmouseover="moveButton()">NO</button>
+        <button id="noBtn" onclick="noClicked()" onmouseenter="moveNo()">NO</button>
     </div>
 </div>
 
-<!-- เสียงหัวเราะ -->
 <audio id="laughSound">
-    <source src="https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3">
+  <source src="https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3">
 </audio>
 
 <script>
 let noCount = 0;
 let loveScale = 1;
 
-const memeGifs = [
-    "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif",
-    "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
-    "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
-    "https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif"
+const texts = [
+    "ทำไมต้องหนีเค้าด้วย 🥺",
+    "แน่ใจนะว่าไม่รัก 😏",
+    "ปุ่มมันใหญ่ขนาดนี้แล้วนะ!",
+    "เริ่มงอนละจริง ๆ 😤",
+    "โอเค… เค้ารู้แล้ว 💖"
 ];
 
-function moveButton() {
+function moveNo() {
     const btn = document.getElementById("noBtn");
-    const x = Math.random() * (window.innerWidth - btn.clientWidth - 20);
-    const y = Math.random() * (window.innerHeight - btn.clientHeight - 20);
-    btn.style.left = x + "px";
-    btn.style.top = y + "px";
-}
+    const area = document.getElementById("btnArea");
 
-function noClicked() {
+    const maxX = area.clientWidth - btn.clientWidth;
+    const maxY = area.clientHeight - btn.clientHeight;
+
+    btn.style.left = Math.random() * maxX + "px";
+    btn.style.top  = Math.random() * maxY + "px";
+
+    document.getElementById("card").classList.add("shake");
+    setTimeout(()=>document.getElementById("card").classList.remove("shake"),300);
+
     noCount++;
-    moveButton();
 
-    // เสียงหัวเราะ
-    const laugh = document.getElementById("laughSound");
-    laugh.currentTime = 0;
-    laugh.play();
+    // ขยาย LOVE แบบจำกัดขอบเขต
+    const maxScale = Math.min(window.innerWidth / 180, 1.8);
+    loveScale = Math.min(loveScale + 0.15, maxScale);
+    document.getElementById("yesBtn").style.transform = `scale(${loveScale})`;
 
-    // เปลี่ยน GIF แบบสุ่ม
-    document.getElementById("memeGif").src =
-        memeGifs[Math.floor(Math.random() * memeGifs.length)];
-
-    // LOVE ใหญ่ขึ้น
-    loveScale += 0.18;
-    document.getElementById("yesBtn").style.transform =
-        `scale(${loveScale})`;
-
-    // ครบ 5 ครั้ง เปลี่ยนข้อความ
-    if (noCount >= 5) {
-        document.getElementById("question").innerText =
-            "แน่ใจจริง ๆ เหรอ 😏";
+    if(noCount < texts.length){
+        document.getElementById("question").innerText = texts[noCount];
     }
 }
 
-function answeredYes() {
+function noClicked(){
+    const laugh = document.getElementById("laughSound");
+    laugh.currentTime = 0;
+    laugh.play();
+    moveNo();
+}
+
+function answeredYes(){
+    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+
     document.getElementById("card").innerHTML = `
-        <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" width="180">
-        <h1>เย้! เธอรักเค้า 💖</h1>
-        <img src="211C2D12-E93C-4EA1-A633-3D5A99E60C4E.jpeg"
-             width="230"
-             style="border-radius:18px; margin-top:15px;">
-        <p style="margin-top:15px; font-size:18px;">
-            คิดถึงเธอมากนะ 🥺  
-            เค้าอยู่ตรงนี้เสมอ ❤️
+        <h1>เย้! เค้าก็รักเธอที่สุด 💖</h1>
+        <img src="example.png" class="final-img">
+        <p style="margin-top:16px;font-size:18px;color:#ff4d6d;">
+            คิดถึงนะ ❤️  
+            เค้าอยู่ตรงนี้เสมอ
         </p>
     `;
 }
