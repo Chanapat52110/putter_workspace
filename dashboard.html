@@ -33,7 +33,7 @@ function renderDashboardPage(liffId) {
                 </head>
                 <body>
                     <div class="box">
-                        <h1>📊 แดชบอร์ดการเงิน</h1>
+                        <h1>🌾 แดชบอร์ดการเงินเกษตรอัจฉริยะ</h1>
                         <p class="error">Missing LIFF ID</p>
                         <p>กรุณาตั้งค่า LIFF_ID ใน server</p>
                     </div>
@@ -45,7 +45,7 @@ function renderDashboardPage(liffId) {
     return `
         <html>
             <head>
-                <title>Dashboard</title>
+                <title>🌾 Smart Farming Dashboard</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -54,31 +54,38 @@ function renderDashboardPage(liffId) {
                         box-sizing: border-box;
                     }
                     body {
-                        font-family: Arial, sans-serif;
+                        font-family: 'Segoe UI', Arial, sans-serif;
                         margin: 0;
-                        background: #f6f7fb;
+                        background: #f0f4f0;
                         color: #222;
+                        font-size: 16px;
                     }
                     .container {
                         max-width: 1100px;
                         margin: 0 auto;
-                        padding: 24px;
+                        padding: 16px;
                     }
                     .header {
-                        background: white;
+                        background: linear-gradient(135deg, #1b5e20, #2e7d32);
+                        color: white;
                         border-radius: 16px;
                         padding: 24px;
-                        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+                        box-shadow: 0 4px 18px rgba(0,0,0,0.12);
                         margin-bottom: 20px;
                     }
-                    .sub {
-                        color: #666;
-                        margin-top: 8px;
+                    .header h1 {
+                        margin: 0 0 6px 0;
+                        font-size: 22px;
                     }
-                    .user {
-                        margin-top: 12px;
+                    .header .sub {
+                        color: #c8e6c9;
+                        margin-top: 4px;
                         font-size: 14px;
-                        color: #444;
+                    }
+                    .header .user {
+                        margin-top: 8px;
+                        font-size: 13px;
+                        color: #a5d6a7;
                         word-break: break-all;
                     }
                     .toolbar {
@@ -90,7 +97,7 @@ function renderDashboardPage(liffId) {
                     }
                     .toolbar select,
                     .toolbar button {
-                        padding: 10px 12px;
+                        padding: 10px 14px;
                         border: 1px solid #ddd;
                         border-radius: 10px;
                         background: white;
@@ -98,7 +105,15 @@ function renderDashboardPage(liffId) {
                     }
                     .toolbar button {
                         cursor: pointer;
+                        background: #e8f5e9;
+                        border-color: #a5d6a7;
+                        color: #1b5e20;
+                        font-weight: bold;
                     }
+                    .toolbar button:hover {
+                        background: #c8e6c9;
+                    }
+                    /* Summary cards */
                     .cards {
                         display: grid;
                         grid-template-columns: repeat(3, 1fr);
@@ -111,6 +126,10 @@ function renderDashboardPage(liffId) {
                         padding: 20px;
                         box-shadow: 0 4px 18px rgba(0,0,0,0.08);
                     }
+                    /* Colored left borders for cards */
+                    .card-income  { border-left: 6px solid #2e7d32; }
+                    .card-expense { border-left: 6px solid #c62828; }
+                    .card-balance { border-left: 6px solid #1565c0; }
                     .card-label {
                         color: #777;
                         font-size: 14px;
@@ -119,7 +138,58 @@ function renderDashboardPage(liffId) {
                     .card-value {
                         font-size: 28px;
                         font-weight: bold;
+                        line-height: 1.2;
                     }
+                    .card-income .card-value  { color: #2e7d32; }
+                    .card-expense .card-value { color: #c62828; }
+                    .card-balance .card-value { color: #1565c0; }
+                    /* Insight section */
+                    .insight-section {
+                        background: white;
+                        border-radius: 16px;
+                        padding: 20px;
+                        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+                        margin-bottom: 20px;
+                        border-left: 6px solid #f9a825;
+                    }
+                    .insight-section h2 {
+                        margin-top: 0;
+                        margin-bottom: 12px;
+                        font-size: 18px;
+                        color: #e65100;
+                    }
+                    #insightBox {
+                        font-size: 16px;
+                        line-height: 1.7;
+                        color: #333;
+                    }
+                    /* Decision support section */
+                    .decision-section {
+                        background: white;
+                        border-radius: 16px;
+                        padding: 20px;
+                        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+                        margin-bottom: 20px;
+                        border-left: 6px solid #6a1b9a;
+                    }
+                    .decision-section h2 {
+                        margin-top: 0;
+                        margin-bottom: 12px;
+                        font-size: 18px;
+                        color: #4a148c;
+                    }
+                    .decision-item {
+                        background: #f3e5f5;
+                        border-radius: 10px;
+                        padding: 10px 14px;
+                        margin-bottom: 8px;
+                        font-size: 15px;
+                        color: #4a148c;
+                    }
+                    .decision-item.warning { background: #fff3e0; color: #e65100; }
+                    .decision-item.loss    { background: #ffebee; color: #c62828; }
+                    .decision-item.best    { background: #e8f5e9; color: #1b5e20; }
+                    /* Charts */
                     .chart-grid {
                         display: grid;
                         grid-template-columns: 2fr 1fr;
@@ -135,24 +205,14 @@ function renderDashboardPage(liffId) {
                     .section h2 {
                         margin-top: 0;
                         margin-bottom: 16px;
-                    }
-                    .chart-placeholder {
-                        min-height: 280px;
-                        border: 2px dashed #d9dce3;
-                        border-radius: 12px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: #888;
-                        background: #fafbff;
-                        text-align: center;
-                        padding: 20px;
+                        font-size: 17px;
                     }
                     .category-canvas-wrap {
                         position: relative;
                         min-height: 320px;
                         width: 100%;
                     }
+                    /* Transaction table */
                     .table-wrap {
                         overflow-x: auto;
                     }
@@ -168,64 +228,87 @@ function renderDashboardPage(liffId) {
                     }
                     th {
                         background: #fafafa;
+                        font-size: 13px;
+                        color: #555;
                     }
-                    .muted {
-                        color: #888;
-                    }
-                    @media (max-width: 900px) {
+                    .badge-income  { background: #e8f5e9; color: #2e7d32; border-radius: 6px; padding: 2px 8px; font-size: 12px; }
+                    .badge-expense { background: #ffebee; color: #c62828; border-radius: 6px; padding: 2px 8px; font-size: 12px; }
+                    .muted { color: #888; }
+                    /* Mobile-first responsive */
+                    @media (max-width: 700px) {
                         .cards {
                             grid-template-columns: 1fr;
                         }
                         .chart-grid {
                             grid-template-columns: 1fr;
                         }
+                        .card-value {
+                            font-size: 24px;
+                        }
+                        .header h1 {
+                            font-size: 18px;
+                        }
                     }
                 </style>
             </head>
             <body>
                 <div class="container">
+                    <!-- Header -->
                     <div class="header">
-                        <h1>📊 แดชบอร์ดการเงิน</h1>
-                        <div class="sub">LINE OA Chatbot รายรับ–รายจ่าย</div>
-                        <div class="user" id="userText">กำลังโหลด user...</div>
+                        <h1>🌾 แดชบอร์ดการเงินเกษตรอัจฉริยะ</h1>
+                        <div class="sub">Smart Farming Financial Dashboard</div>
+                        <div class="user" id="userText">กำลังโหลดข้อมูล...</div>
                     </div>
 
+                    <!-- Toolbar -->
                     <div class="toolbar">
                         <label for="days">ช่วงเวลา:</label>
                         <select id="days">
                             <option value="7">ย้อนหลัง 7 วัน</option>
                             <option value="14">ย้อนหลัง 14 วัน</option>
-                            <option value="30">ย้อนหลัง 30 วัน</option>
+                            <option value="30" selected>ย้อนหลัง 30 วัน</option>
                         </select>
-                        <button type="button" id="reloadBtn">รีโหลดข้อมูล</button>
-                        <button type="button" id="resetTodayBtn">รีเซ็ตข้อมูลวันนี้</button>
+                        <button type="button" id="reloadBtn">🔄 รีโหลดข้อมูล</button>
                         <span id="actionMessage" class="muted"></span>
                     </div>
 
+                    <!-- Summary Cards -->
                     <div class="cards">
-                        <div class="card">
-                            <div class="card-label">รายรับรวม</div>
+                        <div class="card card-income">
+                            <div class="card-label">💰 รายรับรวม</div>
                             <div class="card-value" id="incomeValue">0 บาท</div>
                         </div>
-                        <div class="card">
-                            <div class="card-label">รายจ่ายรวม</div>
+                        <div class="card card-expense">
+                            <div class="card-label">💸 รายจ่ายรวม</div>
                             <div class="card-value" id="expenseValue">0 บาท</div>
                         </div>
-                        <div class="card">
-                            <div class="card-label">คงเหลือ</div>
+                        <div class="card card-balance">
+                            <div class="card-label">🌾 คงเหลือ</div>
                             <div class="card-value" id="balanceValue">0 บาท</div>
                         </div>
                     </div>
 
+                    <!-- Insight Section -->
+                    <div class="insight-section">
+                        <h2>💡 วิเคราะห์อัตโนมัติ</h2>
+                        <div id="insightBox">กำลังวิเคราะห์ข้อมูล...</div>
+                    </div>
+
+                    <!-- Decision Support Section -->
+                    <div class="decision-section">
+                        <h2>🧭 คำแนะนำเพื่อการตัดสินใจ</h2>
+                        <div id="decisionBox">กำลังวิเคราะห์...</div>
+                    </div>
+
+                    <!-- Charts -->
                     <div class="chart-grid">
                         <div class="section">
-                            <h2>สรุปรายวัน</h2>
+                            <h2>📅 สรุปรายวัน</h2>
                             <canvas id="dailyChart" height="120"></canvas>
                         </div>
-
                         <div class="section">
-                            <h2>สรุปตามหมวดหมู่</h2>
-                            <div id="categoryChartWrap" class="chart-placeholder" style="min-height: 320px;">
+                            <h2>🗂️ สรุปตามหมวดหมู่</h2>
+                            <div id="categoryChartWrap" style="min-height:320px;">
                                 <div class="category-canvas-wrap">
                                     <canvas id="categoryChart"></canvas>
                                 </div>
@@ -233,13 +316,13 @@ function renderDashboardPage(liffId) {
                         </div>
                     </div>
 
-                    <div class="section" style="margin-bottom: 20px;">
-                        <h2>รายรับ vs รายจ่ายรายเดือน</h2>
+                    <div class="section" style="margin-bottom:20px;">
+                        <h2>📊 รายรับ vs รายจ่ายรายเดือน</h2>
                         <canvas id="monthlyChart" height="110"></canvas>
                     </div>
-                    
+
                     <div class="section">
-                        <h2>รายการล่าสุด</h2>
+                        <h2>🧾 รายการล่าสุด</h2>
                         <div class="table-wrap">
                             <table>
                                 <thead>
@@ -252,9 +335,7 @@ function renderDashboardPage(liffId) {
                                     </tr>
                                 </thead>
                                 <tbody id="recentTableBody">
-                                    <tr>
-                                        <td colspan="5" class="muted">กำลังโหลดข้อมูล...</td>
-                                    </tr>
+                                    <tr><td colspan="5" class="muted">กำลังโหลดข้อมูล...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -263,335 +344,263 @@ function renderDashboardPage(liffId) {
 
                 <script>
                     const LIFF_ID = ${JSON.stringify(liffId)};
-                        let currentUserId = null;
-                        let dailyChart = null;
-                        let categoryChart = null;
-                        let monthlyChart = null;
+                    let currentUserId = null;
+                    let dailyChart = null;
+                    let categoryChart = null;
+                    let monthlyChart = null;
 
+                    // ─── Mock Data Functions ────────────────────────────────────────────────
+                    // Simulates farming seasonal income/expense over 6 months
+                    function getMockMonthlyData() {
+                        return [
+                            { month: 'ม.ค.', income: 18000, expense: 12000 },
+                            { month: 'ก.พ.', income: 22000, expense: 15000 },
+                            { month: 'มี.ค.', income: 26000, expense: 17000 },
+                            { month: 'เม.ย.', income: 14000, expense: 16000 }, // loss month
+                            { month: 'พ.ค.', income: 30000, expense: 18000 },
+                            { month: 'มิ.ย.', income: 35000, expense: 20000 }
+                        ];
+                    }
+
+                    // Returns expense category breakdown for the doughnut chart
+                    function getMockCategoryData() {
+                        return [
+                            { type: 'expense', category: 'ปุ๋ย', total: 8000 },
+                            { type: 'expense', category: 'แรงงาน', total: 6000 },
+                            { type: 'expense', category: 'น้ำมัน', total: 3000 },
+                            { type: 'expense', category: 'เมล็ดพันธุ์', total: 2000 },
+                            { type: 'expense', category: 'อื่นๆ', total: 1500 }
+                        ];
+                    }
+
+                    // Returns recent transactions for the transaction table
+                    function getMockTransactions() {
+                        return [
+                            { createdAt: '2026-05-01', type: 'income',  category: 'ผัก',       note: 'ตลาดเช้า',           amount: 2500 },
+                            { createdAt: '2026-05-02', type: 'expense', category: 'ปุ๋ย',       note: 'ซื้อยูเรีย',          amount: 1800 },
+                            { createdAt: '2026-05-03', type: 'income',  category: 'ข้าว',      note: 'ขายข้าวเปลือก',       amount: 5000 },
+                            { createdAt: '2026-05-04', type: 'expense', category: 'แรงงาน',    note: 'ค่าจ้างเก็บเกี่ยว',   amount: 2200 },
+                            { createdAt: '2026-05-05', type: 'income',  category: 'ผลไม้',     note: 'มะม่วงส่งตลาด',      amount: 3200 },
+                            { createdAt: '2026-05-06', type: 'expense', category: 'น้ำมัน',    note: 'เติมน้ำมันรถไถ',     amount: 900 },
+                            { createdAt: '2026-05-07', type: 'expense', category: 'เมล็ดพันธุ์', note: 'ซื้อเมล็ดข้าวโพด',  amount: 1200 }
+                        ];
+                    }
+
+                    // Generates daily summary mock data for the selected number of days
+                    function getMockDailyData(days) {
+                        var result = [];
+                        var base = new Date('2026-05-06');
+                        for (var i = days - 1; i >= 0; i--) {
+                            var d = new Date(base);
+                            d.setDate(d.getDate() - i);
+                            var mm = String(d.getMonth() + 1).padStart(2, '0');
+                            var dd = String(d.getDate()).padStart(2, '0');
+                            // Simulate some variation in daily income/expense
+                            var inc = Math.round(800 + Math.random() * 3200);
+                            var exp = Math.round(400 + Math.random() * 1600);
+                            result.push({
+                                date: d.getFullYear() + '-' + mm + '-' + dd,
+                                income: inc,
+                                expense: exp
+                            });
+                        }
+                        return result;
+                    }
+
+                    // ─── Insight Logic ──────────────────────────────────────────────────────
+                    // Compares the latest month with the previous month and shows profit trend
+                    function renderInsight(monthlyItems) {
+                        if (!monthlyItems || monthlyItems.length === 0) return;
+
+                        var latest = monthlyItems[monthlyItems.length - 1];
+                        var prev   = monthlyItems[monthlyItems.length - 2];
+
+                        var profit     = latest.income - latest.expense;
+                        var prevProfit = prev ? (prev.income - prev.expense) : 0;
+
+                        var trend = '';
+                        if (profit > prevProfit)      trend = '📈 กำไรเพิ่มขึ้นจากเดือนที่แล้ว';
+                        else if (profit < prevProfit) trend = '📉 กำไรลดลงจากเดือนที่แล้ว';
+                        else                          trend = '➖ กำไรเท่าเดิม';
+
+                        var message =
+                            '<div style="font-size:19px;margin-bottom:10px;font-weight:bold;">' + trend + '</div>' +
+                            '<div>กำไรเดือนนี้: <b>' + profit.toLocaleString() + ' บาท</b> (' + latest.month + ')</div>' +
+                            '<div style="color:#777;">เดือนที่แล้ว: ' + prevProfit.toLocaleString() + ' บาท (' + (prev ? prev.month : '-') + ')</div>';
+
+                        document.getElementById('insightBox').innerHTML = message;
+                    }
+
+                    // ─── Decision Support Functions ─────────────────────────────────────────
+                    // Flags a category that accounts for more than 40% of total expense
+                    function detectHighExpense(items) {
+                        var total = items.reduce(function(s, i) { return s + i.total; }, 0);
+                        var high  = items.find(function(i) { return i.total / total > 0.4; });
+                        return high ? ('⚠️ ค่าใช้จ่ายสูงผิดปกติ: ' + high.category + ' (' + Math.round(high.total / total * 100) + '%)') : '';
+                    }
+
+                    // Returns months where expense exceeded income
+                    function detectLoss(items) {
+                        return items.filter(function(i) { return i.income < i.expense; });
+                    }
+
+                    // Returns the month with the highest profit
+                    function bestMonth(items) {
+                        return items.reduce(function(best, cur) {
+                            return (cur.income - cur.expense) > (best.income - best.expense) ? cur : best;
+                        });
+                    }
+
+                    // Renders the decision support box using analysis results
+                    function renderDecisionSupport(monthlyItems, categoryItems) {
+                        var html = '';
+
+                        // Check for high expense category
+                        var highExp = detectHighExpense(categoryItems);
+                        if (highExp) {
+                            html += '<div class="decision-item warning">' + highExp + '</div>';
+                        }
+
+                        // Detect loss months
+                        var lossMonths = detectLoss(monthlyItems);
+                        if (lossMonths.length > 0) {
+                            var lossNames = lossMonths.map(function(m) { return m.month; }).join(', ');
+                            html += '<div class="decision-item loss">📉 เดือนที่ขาดทุน: ' + lossNames + '</div>';
+                        }
+
+                        // Show best profit month
+                        var best = bestMonth(monthlyItems);
+                        var bestProfit = best.income - best.expense;
+                        html += '<div class="decision-item best">🏆 เดือนกำไรสูงสุด: ' + best.month + ' (' + bestProfit.toLocaleString() + ' บาท)</div>';
+
+                        // Expense category breakdown tip
+                        var topCat = categoryItems.reduce(function(a, b) { return a.total > b.total ? a : b; });
+                        html += '<div class="decision-item">💡 หมวดหมู่รายจ่ายสูงสุด: ' + topCat.category + ' — พิจารณาลดต้นทุนในส่วนนี้</div>';
+
+                        document.getElementById('decisionBox').innerHTML = html;
+                    }
+
+                    // ─── Utility Functions ──────────────────────────────────────────────────
                     function formatCurrency(value) {
-                        return Number(value || 0).toLocaleString('en-US') + ' บาท';
+                        return Number(value || 0).toLocaleString('th-TH') + ' บาท';
                     }
 
                     function formatType(type) {
-                        if (type === 'income') return 'รายรับ';
-                        if (type === 'expense') return 'รายจ่าย';
+                        if (type === 'income')  return '<span class="badge-income">รายรับ</span>';
+                        if (type === 'expense') return '<span class="badge-expense">รายจ่าย</span>';
                         return type || '-';
                     }
 
                     function showActionMessage(message, isError) {
-                        const el = document.getElementById('actionMessage');
+                        var el = document.getElementById('actionMessage');
                         if (!el) return;
-                    
                         el.textContent = message || '';
                         el.style.color = isError ? '#b00020' : '#2e7d32';
-                    
                         if (message) {
-                            setTimeout(function() {
-                                el.textContent = '';
-                            }, 3000);
+                            setTimeout(function() { el.textContent = ''; }, 3000);
                         }
                     }
 
                     function setCategoryEmptyState(message) {
-                        const wrap = document.getElementById('categoryChartWrap');
-                        wrap.innerHTML = \`
-                            <div style="
-                                display:flex;
-                                align-items:center;
-                                justify-content:center;
-                                min-height:280px;
-                                text-align:center;
-                                color:#888;
-                                padding:20px;
-                            ">
-                                \${message}
-                            </div>
-                        \`;
+                        var wrap = document.getElementById('categoryChartWrap');
+                        wrap.innerHTML =
+                            '<div style="display:flex;align-items:center;justify-content:center;min-height:280px;text-align:center;color:#888;padding:20px;">' +
+                            message + '</div>';
                     }
 
                     function resetCategoryCanvas() {
-                        const wrap = document.getElementById('categoryChartWrap');
-                        wrap.innerHTML = \`
-                            <div class="category-canvas-wrap">
-                                <canvas id="categoryChart"></canvas>
-                            </div>
-                        \`;
+                        var wrap = document.getElementById('categoryChartWrap');
+                        wrap.innerHTML = '<div class="category-canvas-wrap"><canvas id="categoryChart"></canvas></div>';
                     }
 
-                    async function fetchJson(url) {
-                        const res = await fetch(url);
-                        if (!res.ok) {
-                            throw new Error('HTTP ' + res.status);
-                        }
-                        return res.json();
-                    }
-
+                    // ─── Render Functions (using mock data) ─────────────────────────────────
                     function renderRecentTable(items) {
-                        const tbody = document.getElementById('recentTableBody');
-
+                        var tbody = document.getElementById('recentTableBody');
                         if (!items || items.length === 0) {
-                            tbody.innerHTML =
-                                '<tr>' +
-                                    '<td colspan="5" class="muted">ยังไม่มีรายการ</td>' +
-                                '</tr>';
+                            tbody.innerHTML = '<tr><td colspan="5" class="muted">ยังไม่มีรายการ</td></tr>';
                             return;
                         }
-
                         tbody.innerHTML = items.map(function(item) {
-                            return (
-                                '<tr>' +
-                                    '<td>' + (item.createdAt || '-') + '</td>' +
-                                    '<td>' + formatType(item.type) + '</td>' +
-                                    '<td>' + (item.category || '-') + '</td>' +
-                                    '<td>' + (item.note || '-') + '</td>' +
-                                    '<td>' + formatCurrency(item.amount) + '</td>' +
-                                '</tr>'
-                            );
+                            return '<tr>' +
+                                '<td>' + (item.createdAt || '-') + '</td>' +
+                                '<td>' + formatType(item.type) + '</td>' +
+                                '<td>' + (item.category || '-') + '</td>' +
+                                '<td>' + (item.note || '-') + '</td>' +
+                                '<td style="font-weight:bold;">' + formatCurrency(item.amount) + '</td>' +
+                            '</tr>';
                         }).join('');
                     }
 
-                    async function loadRecentTransactions() {
-                        const tbody = document.getElementById('recentTableBody');
-
-                        try {
-                            tbody.innerHTML =
-                                '<tr>' +
-                                    '<td colspan="5" class="muted">กำลังโหลดข้อมูล...</td>' +
-                                '</tr>';
-
-                            const data = await fetchJson(
-                                '/api/recent?userId=' + encodeURIComponent(currentUserId) + '&limit=20'
-                            );
-
-                            renderRecentTable(data.items || []);
-                        } catch (error) {
-                            console.error('loadRecentTransactions error:', error);
-
-                            tbody.innerHTML =
-                                '<tr>' +
-                                    '<td colspan="5" class="muted">โหลดข้อมูลไม่สำเร็จ</td>' +
-                                '</tr>';
-                        }
-                    }
-
                     function renderSummary(items) {
-                        const income = items.reduce(function(sum, item) {
-                            return sum + Number(item.income || 0);
-                        }, 0);
-
-                        const expense = items.reduce(function(sum, item) {
-                            return sum + Number(item.expense || 0);
-                        }, 0);
-
-                        const balance = income - expense;
-
-                        document.getElementById('incomeValue').textContent = formatCurrency(income);
+                        var income  = items.reduce(function(sum, i) { return sum + Number(i.income  || 0); }, 0);
+                        var expense = items.reduce(function(sum, i) { return sum + Number(i.expense || 0); }, 0);
+                        var balance = income - expense;
+                        document.getElementById('incomeValue').textContent  = formatCurrency(income);
                         document.getElementById('expenseValue').textContent = formatCurrency(expense);
                         document.getElementById('balanceValue').textContent = formatCurrency(balance);
                     }
 
-                    async function loadSummary() {
-                        try {
-                            const days = document.getElementById('days').value;
-
-                            const data = await fetchJson(
-                                '/api/daily-summary?userId=' + encodeURIComponent(currentUserId) + '&days=' + days
-                            );
-
-                            const items = data.items || [];
-
-                            renderSummary(items);
-                            renderDailyChart(items);
-                        } catch (error) {
-                            console.error('loadSummary error:', error);
-                        }
-                    }
-
-                    async function loadCategorySummary() {
-                        try {
-                            resetCategoryCanvas();
-
-                            const data = await fetchJson(
-                                '/api/category-summary?userId=' + encodeURIComponent(currentUserId)
-                            );
-
-                            const items = data.items || [];
-                            renderCategoryChart(items);
-                        } catch (error) {
-                            console.error('loadCategorySummary error:', error);
-                            setCategoryEmptyState('โหลดสรุปตามหมวดหมู่ไม่สำเร็จ');
-                        }
-                    }
-
-                    async function loadMonthlySummary() {
-                        try {
-                            const data = await fetchJson(
-                                '/api/monthly-summary?userId=' + encodeURIComponent(currentUserId) + '&months=6'
-                            );
-                    
-                            renderMonthlyChart(data.items || []);
-                        } catch (error) {
-                            console.error('loadMonthlySummary error:', error);
-                        }
-                    }
-
-                    async function resetTodayData() {
-                        const confirmed = window.confirm('ต้องการลบข้อมูลของ "วันนี้" ทั้งหมดใช่หรือไม่?');
-                        if (!confirmed) {
-                            return;
-                        }
-                    
-                        try {
-                            const res = await fetch('/api/reset-today', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    userId: currentUserId
-                                })
-                            });
-                    
-                            if (!res.ok) {
-                                throw new Error('HTTP ' + res.status);
-                            }
-                    
-                            const data = await res.json();
-                    
-                            showActionMessage(
-                                'รีเซ็ตข้อมูลวันนี้สำเร็จ (' + Number(data.deletedCount || 0) + ' รายการ)',
-                                false
-                            );
-                    
-                            await loadRecentTransactions();
-                            await loadSummary();
-                            await loadCategorySummary();
-                            await loadMonthlySummary();
-                        } catch (error) {
-                            console.error('resetTodayData error:', error);
-                            showActionMessage('รีเซ็ตข้อมูลวันนี้ไม่สำเร็จ', true);
-                        }
-                    }
-
-                    function renderMonthlyChart(items) {
-                        const canvas = document.getElementById('monthlyChart');
+                    function renderDailyChart(items) {
+                        var canvas = document.getElementById('dailyChart');
                         if (!canvas) return;
-                    
-                        const rows = items || [];
-                    
-                        const labels = rows.map(function(item) {
-                            return item.month || '-';
-                        });
-                    
-                        const incomeData = rows.map(function(item) {
-                            return Number(item.income || 0);
-                        });
-                    
-                        const expenseData = rows.map(function(item) {
-                            return Number(item.expense || 0);
-                        });
-                    
-                        if (monthlyChart) {
-                            monthlyChart.destroy();
-                        }
-                    
-                        monthlyChart = new Chart(canvas, {
+                        var sortedItems = (items || []).slice().reverse();
+                        var labels      = sortedItems.map(function(i) { return i.date || '-'; });
+                        var incomeData  = sortedItems.map(function(i) { return Number(i.income  || 0); });
+                        var expenseData = sortedItems.map(function(i) { return Number(i.expense || 0); });
+                        if (dailyChart) dailyChart.destroy();
+                        dailyChart = new Chart(canvas, {
                             type: 'bar',
                             data: {
                                 labels: labels,
                                 datasets: [
-                                    {
-                                        label: 'รายรับ',
-                                        data: incomeData
-                                    },
-                                    {
-                                        label: 'รายจ่าย',
-                                        data: expenseData
-                                    }
+                                    { label: 'รายรับ',  data: incomeData,  backgroundColor: 'rgba(46,125,50,0.7)' },
+                                    { label: 'รายจ่าย', data: expenseData, backgroundColor: 'rgba(198,40,40,0.7)' }
                                 ]
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: true,
-                                plugins: {
-                                    legend: {
-                                        position: 'top'
-                                    },
-                                    tooltip: {
-                                        callbacks: {
-                                            label: function(context) {
-                                                const label = context.dataset.label || '';
-                                                const value = context.raw || 0;
-                                                return label + ': ' + formatCurrency(value);
-                                            }
-                                        }
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
-                                }
+                                plugins: { legend: { position: 'top' } },
+                                scales: { y: { beginAtZero: true } }
                             }
                         });
                     }
 
                     function renderCategoryChart(items) {
                         if (!items || items.length === 0) {
-                            setCategoryEmptyState('ยังไม่มีข้อมูลหมวดหมู่สำหรับวันนี้');
+                            setCategoryEmptyState('ยังไม่มีข้อมูลหมวดหมู่');
                             return;
                         }
-
-                        const expenseItems = items.filter(function(item) {
-                            return item.type === 'expense';
-                        });
-
+                        var expenseItems = items.filter(function(i) { return i.type === 'expense'; });
                         if (expenseItems.length === 0) {
-                            setCategoryEmptyState('ยังไม่มีข้อมูลรายจ่ายสำหรับวันนี้');
+                            setCategoryEmptyState('ยังไม่มีข้อมูลรายจ่าย');
                             return;
                         }
-
                         resetCategoryCanvas();
-
-                        const canvas = document.getElementById('categoryChart');
-
-                        const labels = expenseItems.map(function(item) {
-                            return item.category || 'อื่นๆ';
-                        });
-
-                        const values = expenseItems.map(function(item) {
-                            return Number(item.total || 0);
-                        });
-
-                        if (categoryChart) {
-                            categoryChart.destroy();
-                        }
-
+                        var canvas = document.getElementById('categoryChart');
+                        var labels = expenseItems.map(function(i) { return i.category || 'อื่นๆ'; });
+                        var values = expenseItems.map(function(i) { return Number(i.total || 0); });
+                        if (categoryChart) categoryChart.destroy();
                         categoryChart = new Chart(canvas, {
                             type: 'doughnut',
                             data: {
                                 labels: labels,
-                                datasets: [
-                                    {
-                                        label: 'รายจ่ายตามหมวดหมู่',
-                                        data: values,
-                                        borderWidth: 1
-                                    }
-                                ]
+                                datasets: [{
+                                    label: 'รายจ่ายตามหมวดหมู่',
+                                    data: values,
+                                    backgroundColor: ['#ef5350','#ff9800','#fdd835','#66bb6a','#42a5f5'],
+                                    borderWidth: 1
+                                }]
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
                                 plugins: {
-                                    legend: {
-                                        position: 'bottom'
-                                    },
+                                    legend: { position: 'bottom' },
                                     tooltip: {
                                         callbacks: {
                                             label: function(context) {
-                                                const label = context.label || '';
-                                                const value = context.raw || 0;
-                                                return label + ': ' + formatCurrency(value);
+                                                return context.label + ': ' + formatCurrency(context.raw);
                                             }
                                         }
                                     }
@@ -600,104 +609,103 @@ function renderDashboardPage(liffId) {
                         });
                     }
 
-                    function renderDailyChart(items) {
-                        const canvas = document.getElementById('dailyChart');
+                    function renderMonthlyChart(items) {
+                        var canvas = document.getElementById('monthlyChart');
                         if (!canvas) return;
-
-                        const sortedItems = (items || []).slice().reverse();
-
-                        const labels = sortedItems.map(function(item) {
-                            return item.date || '-';
-                        });
-
-                        const incomeData = sortedItems.map(function(item) {
-                            return Number(item.income || 0);
-                        });
-
-                        const expenseData = sortedItems.map(function(item) {
-                            return Number(item.expense || 0);
-                        });
-
-                        if (dailyChart) {
-                            dailyChart.destroy();
-                        }
-
-                        dailyChart = new Chart(canvas, {
+                        var rows       = items || [];
+                        var labels     = rows.map(function(i) { return i.month || '-'; });
+                        var incomeData = rows.map(function(i) { return Number(i.income  || 0); });
+                        var expData    = rows.map(function(i) { return Number(i.expense || 0); });
+                        if (monthlyChart) monthlyChart.destroy();
+                        monthlyChart = new Chart(canvas, {
                             type: 'bar',
                             data: {
                                 labels: labels,
                                 datasets: [
-                                    {
-                                        label: 'รายรับ',
-                                        data: incomeData
-                                    },
-                                    {
-                                        label: 'รายจ่าย',
-                                        data: expenseData
-                                    }
+                                    { label: 'รายรับ',  data: incomeData, backgroundColor: 'rgba(46,125,50,0.75)' },
+                                    { label: 'รายจ่าย', data: expData,    backgroundColor: 'rgba(198,40,40,0.75)' }
                                 ]
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: true,
                                 plugins: {
-                                    legend: {
-                                        position: 'top'
+                                    legend: { position: 'top' },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return context.dataset.label + ': ' + formatCurrency(context.raw);
+                                            }
+                                        }
                                     }
                                 },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
-                                }
+                                scales: { y: { beginAtZero: true } }
                             }
                         });
+                        // Render insight after monthly chart is ready
+                        renderInsight(rows);
                     }
 
-                    async function initDashboard() {
-                        try {
-                            await liff.init({ liffId: LIFF_ID });
-
-                            if (!liff.isLoggedIn()) {
-                                liff.login();
-                                return;
-                            }
-
-                            const context = liff.getContext();
-                            currentUserId = context && context.userId ? context.userId : null;
-
-                            if (!currentUserId) {
-                                document.getElementById('userText').textContent = 'ไม่พบ userId จาก LIFF';
-                                return;
-                            }
-
-                            document.getElementById('userText').textContent = 'userId: ' + currentUserId;
-
-                            await loadRecentTransactions();
-                            await loadSummary();
-                            await loadCategorySummary();
-                            await loadMonthlySummary();
-                        } catch (error) {
-                            console.error('initDashboard error:', error);
-                            document.getElementById('userText').textContent = 'โหลด LIFF ไม่สำเร็จ';
-                        }
+                    // ─── Load Functions (use mock data, no API calls) ───────────────────────
+                    function loadRecentTransactions() {
+                        renderRecentTable(getMockTransactions());
                     }
 
-                    document.getElementById('reloadBtn').addEventListener('click', function() {
+                    function loadSummary() {
+                        var days  = parseInt(document.getElementById('days').value, 10) || 30;
+                        var items = getMockDailyData(days);
+                        renderSummary(items);
+                        renderDailyChart(items);
+                    }
+
+                    function loadCategorySummary() {
+                        resetCategoryCanvas();
+                        renderCategoryChart(getMockCategoryData());
+                    }
+
+                    function loadMonthlySummary() {
+                        var items = getMockMonthlyData();
+                        renderMonthlyChart(items);
+                        renderDecisionSupport(items, getMockCategoryData());
+                    }
+
+                    function loadAll() {
                         loadRecentTransactions();
                         loadSummary();
                         loadCategorySummary();
                         loadMonthlySummary();
+                    }
+
+                    // ─── LIFF Init (graceful fallback to mock data) ─────────────────────────
+                    async function initDashboard() {
+                        try {
+                            await liff.init({ liffId: LIFF_ID });
+                            if (liff.isLoggedIn()) {
+                                var context = liff.getContext();
+                                currentUserId = context && context.userId ? context.userId : 'demo-user';
+                                document.getElementById('userText').textContent = '👤 userId: ' + currentUserId;
+                            } else {
+                                document.getElementById('userText').textContent = '🌾 โหมดสาธิต (ไม่ได้เข้าสู่ระบบ)';
+                            }
+                        } catch (error) {
+                            // LIFF init failed – still show dashboard with mock data
+                            document.getElementById('userText').textContent = '🌾 โหมดสาธิต (ข้อมูลจำลอง)';
+                        }
+                        // Load all data immediately using mock functions
+                        loadAll();
+                    }
+
+                    // ─── Event Listeners ────────────────────────────────────────────────────
+                    document.getElementById('reloadBtn').addEventListener('click', function() {
+                        showActionMessage('รีโหลดข้อมูลสำเร็จ', false);
+                        loadAll();
                     });
 
                     document.getElementById('days').addEventListener('change', function() {
                         loadSummary();
                     });
 
-                    document.getElementById('resetTodayBtn').addEventListener('click', function() {
-                        resetTodayData();
-                    });
-
+                    // Start the dashboard
                     initDashboard();
                 </script>
             </body>
