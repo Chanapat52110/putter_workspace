@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌾 แดชบอร์ดการเงินเกษตรอัจฉริยะ</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #22c55e;
+      --green-light: #dcfce7;
+      --red:    #ef4444;
+      --red-light: #fee2e2;
+      --blue:   #3b82f6;
+      --blue-light: #dbeafe;
+      --gray:   #6b7280;
+      --bg:     #f1f5f9;
+      --card:   #ffffff;
+      --border: #e2e8f0;
+      --shadow: 0 2px 12px rgba(0,0,0,.08);
+      --radius: 16px;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Noto Sans Thai', sans-serif;
+      background: var(--bg);
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #4ade80 100%);
+      color: #fff;
+      padding: 32px 24px 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    header h1 { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 800; letter-spacing: .5px; }
+    header p  { font-size: .95rem; opacity: .85; margin-top: 4px; }
+    .badge {
+      display: inline-block;
+      margin-top: 12px;
+      background: rgba(255,255,255,.2);
+      border: 1px solid rgba(255,255,255,.4);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 999px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── LAYOUT ── */
+    main { max-width: 1280px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    /* ── CONTROLS ── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .controls label { font-weight: 600; font-size: .9rem; color: var(--gray); }
+    .controls select, .controls button {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-size: .9rem;
+      cursor: pointer;
+      background: var(--card);
+      color: #1e293b;
+      transition: all .2s;
+    }
+    .controls select:focus, .controls button:focus { outline: 2px solid var(--green); outline-offset: 2px; }
+    .controls button {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+      font-weight: 700;
+    }
+    .controls button:hover { background: #16a34a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(34,197,94,.35); }
+
+    /* ── SUMMARY CARDS ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+
+    .summary-card .icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 14px;
+    }
+    .summary-card .label { font-size: .8rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .8px; }
+    .summary-card .value { font-size: 1.85rem; font-weight: 800; margin: 4px 0 2px; line-height: 1.1; }
+    .summary-card .sub   { font-size: .78rem; color: var(--gray); }
+
+    .income-card  .icon  { background: var(--green-light); }
+    .income-card  .value { color: var(--green); }
+    .expense-card .icon  { background: var(--red-light); }
+    .expense-card .value { color: var(--red); }
+    .balance-card .icon  { background: var(--blue-light); }
+    .balance-card .value { color: var(--blue); }
+
+    /* ── CHARTS GRID ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    .chart-card { padding: 22px; position: relative; }
+    .chart-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 18px; color: #334155; }
+    .chart-wrap { position: relative; width: 100%; }
+
+    /* ── INSIGHTS ── */
+    .insights-section { margin-bottom: 28px; }
+    .insights-section h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; color: #1e293b; }
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .insight-card {
+      padding: 18px 20px;
+      border-radius: 14px;
+      border-left: 5px solid transparent;
+    }
+    .insight-card .i-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+    .insight-card .i-body  { font-size: .9rem; font-weight: 600; line-height: 1.5; }
+    .insight-card.info   { background: #eff6ff; border-color: #3b82f6; }
+    .insight-card.warn   { background: #fff7ed; border-color: #f97316; }
+    .insight-card.good   { background: #f0fdf4; border-color: #22c55e; }
+    .insight-card.bad    { background: #fef2f2; border-color: #ef4444; }
+    .insight-card.tip    { background: #fdf4ff; border-color: #a855f7; }
+
+    /* ── TABLE ── */
+    .table-section { margin-bottom: 28px; }
+    .table-section h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; color: #1e293b; }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+    }
+    thead th {
+      background: #f8fafc;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--gray);
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: #f8fafc; }
+    tbody td { padding: 12px 16px; vertical-align: middle; }
+    .badge-income  { background: var(--green-light); color: #15803d; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .badge-expense { background: var(--red-light);   color: #b91c1c; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .amount-income  { color: var(--green); font-weight: 700; }
+    .amount-expense { color: var(--red);   font-weight: 700; }
+
+    @media (max-width: 600px) {
+      header { padding: 22px 16px 18px; }
+      main { padding: 18px 12px 40px; }
+      .summary-card .value { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <h1>🌾 แดชบอร์ดการเงินเกษตรอัจฉริยะ</h1>
+  <p>Smart Farming Financial Dashboard</p>
+  <span class="badge">Demo Mode</span>
+</header>
+
+<main>
+
+  <!-- ── CONTROLS ── -->
+  <div class="controls">
+    <label for="daySelect">📅 ช่วงเวลา:</label>
+    <select id="daySelect">
+      <option value="7">7 วันล่าสุด</option>
+      <option value="14" selected>14 วันล่าสุด</option>
+      <option value="30">30 วันล่าสุด</option>
+    </select>
+    <button id="reloadBtn">🔄 โหลดข้อมูลใหม่</button>
+  </div>
+
+  <!-- ── SUMMARY CARDS ── -->
+  <div class="summary-grid" id="summaryGrid"></div>
+
+  <!-- ── CHARTS ── -->
+  <div class="charts-grid">
+    <div class="card chart-card" style="grid-column: span 2; min-width: 0;">
+      <h3>📈 รายรับ vs รายจ่ายรายวัน</h3>
+      <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <h3>📅 รายรับ / รายจ่าย / กำไรรายเดือน</h3>
+      <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <h3>🗂️ สัดส่วนค่าใช้จ่ายตามหมวดหมู่</h3>
+      <div class="chart-wrap" style="max-width:300px;margin:0 auto;"><canvas id="categoryChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── INSIGHTS ── -->
+  <section class="insights-section card" style="padding:24px;">
+    <h2>🧠 ระบบวิเคราะห์อัจฉริยะ</h2>
+    <div class="insights-grid" id="insightsGrid"></div>
+  </section>
+
+  <!-- ── TABLE ── -->
+  <section class="table-section card" style="padding:24px;">
+    <h2>📋 รายการธุรกรรมล่าสุด</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>วันที่</th>
+            <th>ประเภท</th>
+            <th>หมวดหมู่</th>
+            <th>หมายเหตุ</th>
+            <th style="text-align:right">จำนวนเงิน (บาท)</th>
+          </tr>
+        </thead>
+        <tbody id="txBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATA LAYER
+// ═══════════════════════════════════════════════
+
+function getMockMonthlyData() {
+  return [
+    { month: 'ม.ค.', income: 52000, expense: 38000 },
+    { month: 'ก.พ.', income: 61000, expense: 42000 },
+    { month: 'มี.ค.', income: 47000, expense: 55000 }, // loss month
+    { month: 'เม.ย.', income: 73000, expense: 39000 },
+    { month: 'พ.ค.', income: 68000, expense: 44000 },
+    { month: 'มิ.ย.', income: 80000, expense: 51000 },
+  ];
+}
+
+function getMockCategoryData() {
+  return [
+    { label: 'ปุ๋ย',        value: 38000, color: '#22c55e' },
+    { label: 'ค่าแรง',      value: 27000, color: '#3b82f6' },
+    { label: 'น้ำมัน',      value: 18000, color: '#f97316' },
+    { label: 'เมล็ดพันธุ์', value: 15000, color: '#a855f7' },
+    { label: 'อื่นๆ',       value: 12000, color: '#ec4899' },
+  ];
+}
+
+function getMockTransactions() {
+  return [
+    { date: '2024-06-28', type: 'income',  category: 'ขายข้าว',      note: 'ขายข้าวหอมมะลิ 2 ตัน',        amount: 32000 },
+    { date: '2024-06-25', type: 'expense', category: 'ปุ๋ย',         note: 'ปุ๋ยยูเรีย 50 กระสอบ',          amount: 12500 },
+    { date: '2024-06-22', type: 'income',  category: 'ขายผัก',       note: 'ผักคะน้า-กวางตุ้ง',            amount: 8400  },
+    { date: '2024-06-20', type: 'expense', category: 'ค่าแรง',       note: 'จ้างเกี่ยวข้าว 6 คน',          amount: 9000  },
+    { date: '2024-06-18', type: 'expense', category: 'น้ำมัน',       note: 'น้ำมันดีเซลรถไถ',              amount: 4200  },
+    { date: '2024-06-15', type: 'income',  category: 'ขายข้าว',      note: 'ข้าวเปลือกขายโรงสี',           amount: 18600 },
+    { date: '2024-06-12', type: 'expense', category: 'เมล็ดพันธุ์',  note: 'เมล็ดพันธุ์ข้าว กข6',          amount: 5500  },
+    { date: '2024-06-10', type: 'expense', category: 'อื่นๆ',        note: 'ซ่อมปั๊มน้ำ',                  amount: 3200  },
+    { date: '2024-06-08', type: 'income',  category: 'อุดหนุนรัฐ',   note: 'เงินอุดหนุนโครงการนาแปลงใหญ่', amount: 12000 },
+    { date: '2024-06-05', type: 'expense', category: 'ปุ๋ย',         note: 'ปุ๋ยอินทรีย์ชีวภาพ',            amount: 6800  },
+  ];
+}
+
+function getMockDailyData(days) {
+  const labels = [];
+  const income  = [];
+  const expense = [];
+  const now = new Date(2024, 5, 28); // 28 Jun 2024 (fixed seed base)
+
+  // Seeded pseudo-random so each reload gives different numbers
+  const seed = Date.now();
+  function rnd(min, max, offset) {
+    return Math.round(min + ((Math.sin(seed + offset) + 1) / 2) * (max - min));
+  }
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    labels.push(`${d.getDate()}/${d.getMonth() + 1}`);
+    income.push(rnd(800, 8000, i * 13));
+    expense.push(rnd(400, 5500, i * 17 + 1));
+  }
+  return { labels, income, expense };
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER SUMMARY
+// ═══════════════════════════════════════════════
+
+function renderSummary(monthly) {
+  const totalIncome  = monthly.reduce((s, m) => s + m.income,  0);
+  const totalExpense = monthly.reduce((s, m) => s + m.expense, 0);
+  const balance      = totalIncome - totalExpense;
+
+  const fmt = n => '฿' + n.toLocaleString('th-TH');
+
+  const cards = [
+    {
+      cls: 'income-card',
+      icon: '💰',
+      label: 'รายรับทั้งหมด (YTD)',
+      value: fmt(totalIncome),
+      sub: 'ม.ค. – มิ.ย. 2024',
+    },
+    {
+      cls: 'expense-card',
+      icon: '💸',
+      label: 'รายจ่ายทั้งหมด (YTD)',
+      value: fmt(totalExpense),
+      sub: 'ม.ค. – มิ.ย. 2024',
+    },
+    {
+      cls: 'balance-card',
+      icon: '🌾',
+      label: 'ยอดคงเหลือสุทธิ',
+      value: fmt(balance),
+      sub: balance >= 0 ? '✅ มีกำไร' : '⚠️ ขาดทุน',
+    },
+  ];
+
+  document.getElementById('summaryGrid').innerHTML = cards.map(c => `
+    <div class="card summary-card ${c.cls}">
+      <div class="icon">${c.icon}</div>
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+      <div class="sub">${c.sub}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  CHART INSTANCES (destroy before re-create)
+// ═══════════════════════════════════════════════
+
+const _charts = {};
+function destroyChart(id) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER CHARTS
+// ═══════════════════════════════════════════════
+
+function renderCharts(days) {
+  const monthly  = getMockMonthlyData();
+  const catData  = getMockCategoryData();
+  const daily    = getMockDailyData(days);
+
+  // ── Daily Chart ──
+  destroyChart('daily');
+  _charts['daily'] = new Chart(document.getElementById('dailyChart'), {
+    type: 'bar',
+    data: {
+      labels: daily.labels,
+      datasets: [
+        {
+          label: 'รายรับ (บาท)',
+          data: daily.income,
+          backgroundColor: 'rgba(34,197,94,.7)',
+          borderColor: '#16a34a',
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+        {
+          label: 'รายจ่าย (บาท)',
+          data: daily.expense,
+          backgroundColor: 'rgba(239,68,68,.65)',
+          borderColor: '#dc2626',
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' }, tooltip: { mode: 'index' } },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: v => '฿' + v.toLocaleString() } },
+        x: { ticks: { maxRotation: 45, font: { size: 10 } } },
+      },
+    },
+  });
+
+  // ── Monthly Chart ──
+  destroyChart('monthly');
+  const profits = monthly.map(m => m.income - m.expense);
+  _charts['monthly'] = new Chart(document.getElementById('monthlyChart'), {
+    type: 'bar',
+    data: {
+      labels: monthly.map(m => m.month),
+      datasets: [
+        {
+          label: 'รายรับ',
+          data: monthly.map(m => m.income),
+          backgroundColor: 'rgba(34,197,94,.7)',
+          borderRadius: 5,
+        },
+        {
+          label: 'รายจ่าย',
+          data: monthly.map(m => m.expense),
+          backgroundColor: 'rgba(239,68,68,.65)',
+          borderRadius: 5,
+        },
+        {
+          type: 'line',
+          label: 'กำไร',
+          data: profits,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,.15)',
+          pointBackgroundColor: profits.map(p => p >= 0 ? '#3b82f6' : '#ef4444'),
+          pointRadius: 5,
+          tension: 0.35,
+          fill: true,
+          yAxisID: 'y',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: v => '฿' + (v/1000).toFixed(0) + 'K' } },
+      },
+    },
+  });
+
+  // ── Category Doughnut ──
+  destroyChart('category');
+  _charts['category'] = new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+      labels: catData.map(c => c.label),
+      datasets: [{
+        data:            catData.map(c => c.value),
+        backgroundColor: catData.map(c => c.color),
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 8,
+      }],
+    },
+    options: {
+      responsive: true,
+      cutout: '60%',
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 14, font: { size: 12 } } },
+        tooltip: { callbacks: { label: ctx => ` ฿${ctx.parsed.toLocaleString('th-TH')}` } },
+      },
+    },
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER TABLE
+// ═══════════════════════════════════════════════
+
+function renderTable() {
+  const txs = getMockTransactions();
+
+  document.getElementById('txBody').innerHTML = txs.map(tx => `
+    <tr>
+      <td>${tx.date}</td>
+      <td><span class="badge-${tx.type}">${tx.type === 'income' ? '💰 รายรับ' : '💸 รายจ่าย'}</span></td>
+      <td>${tx.category}</td>
+      <td style="color:#475569">${tx.note}</td>
+      <td class="amount-${tx.type}" style="text-align:right">
+        ${tx.type === 'income' ? '+' : '-'}฿${tx.amount.toLocaleString('th-TH')}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER INSIGHTS
+// ═══════════════════════════════════════════════
+
+function renderInsight() {
+  const monthly = getMockMonthlyData();
+  const n = monthly.length;
+
+  // Trend: compare last 2 months
+  const last  = monthly[n - 1];
+  const prev  = monthly[n - 2];
+  const trendPct = (((last.income - last.expense) - (prev.income - prev.expense)) /
+                    Math.abs(prev.income - prev.expense) * 100).toFixed(1);
+  const trendUp = parseFloat(trendPct) >= 0;
+
+  // High expense warning: find month where expense > 40% above avg expense
+  const avgExp = monthly.reduce((s, m) => s + m.expense, 0) / n;
+  const highExpMonth = monthly.find(m => m.expense > avgExp * 1.4);
+
+  // Best / Worst month by profit
+  const profits = monthly.map(m => ({ ...m, profit: m.income - m.expense }));
+  const best  = profits.reduce((a, b) => b.profit > a.profit ? b : a);
+  const worst = profits.reduce((a, b) => b.profit < a.profit ? b : a);
+
+  const insights = [
+    {
+      cls: trendUp ? 'good' : 'bad',
+      title: '📊 แนวโน้มกำไร',
+      body: trendUp
+        ? `กำไรเดือน ${last.month} เพิ่มขึ้น <strong>${trendPct}%</strong> เมื่อเทียบกับ ${prev.month} — แนวโน้มดีขึ้น 🎉`
+        : `กำไรเดือน ${last.month} ลดลง <strong>${Math.abs(trendPct)}%</strong> เมื่อเทียบกับ ${prev.month} — ควรตรวจสอบรายจ่าย ⚠️`,
+    },
+    {
+      cls: highExpMonth ? 'warn' : 'good',
+      title: '⚠️ แจ้งเตือนค่าใช้จ่ายสูง',
+      body: highExpMonth
+        ? `เดือน ${highExpMonth.month} มีค่าใช้จ่าย ฿${highExpMonth.expense.toLocaleString('th-TH')} — <strong>เกินค่าเฉลี่ย 40%+</strong> ควรวางแผนควบคุม`
+        : 'ค่าใช้จ่ายทุกเดือนอยู่ในเกณฑ์ปกติ ✅',
+    },
+    {
+      cls: 'good',
+      title: '🏆 เดือนที่กำไรสูงสุด',
+      body: `<strong>${best.month}</strong> — รายรับ ฿${best.income.toLocaleString()} รายจ่าย ฿${best.expense.toLocaleString()} กำไร ฿${best.profit.toLocaleString()}`,
+    },
+    {
+      cls: 'bad',
+      title: '📉 เดือนที่กำไรต่ำสุด',
+      body: `<strong>${worst.month}</strong> — ${worst.profit < 0
+        ? `ขาดทุน ฿${Math.abs(worst.profit).toLocaleString()} ต้องวิเคราะห์ต้นทุน`
+        : `กำไร ฿${worst.profit.toLocaleString()} ต่ำกว่าเดือนอื่น`}`,
+    },
+    {
+      cls: 'tip',
+      title: '💡 คำแนะนำสำหรับเกษตรกร',
+      body: `ปุ๋ยและค่าแรงคิดเป็นสัดส่วนสูงสุด แนะนำ: <strong>ลองใช้ปุ๋ยอินทรีย์</strong> ร่วมกับเครื่องจักรกลเพื่อลดต้นทุน และ<strong>วางแผนขายล่วงหน้า</strong>เพื่อประกันราคา`,
+    },
+  ];
+
+  document.getElementById('insightsGrid').innerHTML = insights.map(ins => `
+    <div class="insight-card ${ins.cls}">
+      <div class="i-title">${ins.title}</div>
+      <div class="i-body">${ins.body}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  MAIN LOADER
+// ═══════════════════════════════════════════════
+
+function loadDashboard() {
+  const days = parseInt(document.getElementById('daySelect').value, 10);
+  const monthly = getMockMonthlyData();
+
+  renderSummary(monthly);
+  renderCharts(days);
+  renderTable();
+  renderInsight();
+}
+
+// ── Event listeners ──
+document.getElementById('daySelect').addEventListener('change', loadDashboard);
+document.getElementById('reloadBtn').addEventListener('click', loadDashboard);
+
+document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+</body>
+</html>
