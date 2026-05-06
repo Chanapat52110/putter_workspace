@@ -57,6 +57,10 @@ function renderDashboardPage(liffId) {
         .card.income  .card-value { color: #2e7d32; }
         .card.expense .card-value { color: #c62828; }
         .card.balance .card-value { color: #1565c0; }
+        .card:hover {
+            transform: translateY(-4px);
+            transition: 0.2s;
+        }
         .toolbar {
             display: flex;
             gap: 10px;
@@ -118,6 +122,8 @@ function renderDashboardPage(liffId) {
         .insight-card.warning  { background: #fff3e0; border-left: 4px solid #f57c00; }
         .insight-card.best     { background: #e3f2fd; border-left: 4px solid #1565c0; }
         .insight-card.loss     { background: #ffebee; border-left: 4px solid #c62828; }
+        .insight-card.worst    { background: #fce4ec; border-left: 4px solid #880e4f; }
+        .insight-card.advice   { background: #f3e5f5; border-left: 4px solid #7b1fa2; }
         .insight-card strong   { display: block; margin-bottom: 4px; font-size: 15px; }
         .muted { color: #888; }
         @media (max-width: 760px) {
@@ -278,6 +284,8 @@ function renderDashboardPage(liffId) {
         return result;
     }
 
+    var HIGH_EXPENSE_THRESHOLD = 0.4;
+
     // ─── INSIGHT ENGINE ─────────────────────────────────────────────────────────
 
     function renderInsight(monthly) {
@@ -300,7 +308,7 @@ function renderDashboardPage(liffId) {
     function detectHighExpense(category) {
         if (!category || category.length === 0) return '';
         var total = category.reduce(function(s, i) { return s + i.total; }, 0);
-        var warnings = category.filter(function(i) { return total > 0 && (i.total / total) > 0.4; });
+        var warnings = category.filter(function(i) { return total > 0 && (i.total / total) > HIGH_EXPENSE_THRESHOLD; });
         if (warnings.length === 0) return '';
         return warnings.map(function(i) {
             return '<div class="insight-card warning">' +
@@ -338,6 +346,58 @@ function renderDashboardPage(liffId) {
         '</div>';
     }
 
+    function worstMonth(monthly) {
+        if (!monthly || monthly.length === 0) return '';
+        var worst = monthly.reduce(function(w, m) {
+            return (m.income - m.expense) < (w.income - w.expense) ? m : w;
+        });
+        var profit = worst.income - worst.expense;
+        return '<div class="insight-card worst">' +
+            '<strong>⚠️ เดือนแย่สุด: ' + worst.month + '</strong>' +
+            (profit < 0
+                ? 'ขาดทุน: ' + formatCurrency(worst.expense - worst.income)
+                : 'กำไรน้อยที่สุด: ' + formatCurrency(profit)) + '<br>' +
+            'รายรับ: ' + formatCurrency(worst.income) + '<br>' +
+            'รายจ่าย: ' + formatCurrency(worst.expense) +
+        '</div>';
+    }
+
+    function generateAdvice(monthly, category) {
+        var tips = [];
+        if (monthly && monthly.length > 0) {
+            var lossMonths = monthly.filter(function(m) { return m.income < m.expense; });
+            if (lossMonths.length > 0) {
+                tips.push('ลดต้นทุนในเดือน ' + lossMonths.map(function(m) { return m.month; }).join(', ') + ' เพื่อหลีกเลี่ยงการขาดทุน');
+            }
+            var best = monthly.reduce(function(b, m) {
+                return (m.income - m.expense) > (b.income - b.expense) ? m : b;
+            });
+            tips.push('เพิ่มผลผลิตในเดือน ' + best.month + ' ซึ่งเป็นช่วงที่ทำกำไรได้ดีที่สุด');
+        }
+        if (category && category.length > 0) {
+            var total = category.reduce(function(s, i) { return s + i.total; }, 0);
+            category.forEach(function(i) {
+                if (total > 0 && (i.total / total) > HIGH_EXPENSE_THRESHOLD) {
+                    tips.push('ลดค่าใช้จ่ายหมวด "' + i.category + '" ซึ่งคิดเป็น ' + Math.round(i.total / total * 100) + '% ของรายจ่ายทั้งหมด');
+                }
+            });
+        }
+        if (tips.length === 0) {
+            tips.push('การเงินอยู่ในเกณฑ์ดี ควรรักษาระดับรายรับและควบคุมรายจ่ายต่อไป');
+        }
+        return tips;
+    }
+
+    function renderAdvice(monthly, category) {
+        var tips = generateAdvice(monthly, category);
+        return '<div class="insight-card advice" style="grid-column: 1 / -1">' +
+            '<strong>🧭 คำแนะนำ</strong>' +
+            '<ul style="margin: 6px 0 0 16px; line-height: 1.9">' +
+            tips.map(function(t) { return '<li>' + t + '</li>'; }).join('') +
+            '</ul>' +
+        '</div>';
+    }
+
     // ─── HELPERS ────────────────────────────────────────────────────────────────
 
     function formatCurrency(value) {
@@ -358,16 +418,24 @@ function renderDashboardPage(liffId) {
         var balance = income - expense;
         document.getElementById('incomeValue').textContent  = formatCurrency(income);
         document.getElementById('expenseValue').textContent = formatCurrency(expense);
-        document.getElementById('balanceValue').textContent = formatCurrency(balance);
+        var balanceEl = document.getElementById('balanceValue');
+        balanceEl.textContent = formatCurrency(balance);
+        balanceEl.style.color = balance > 0 ? '#2e7d32' : (balance < 0 ? '#c62828' : '#888');
     }
 
     function renderInsightBox(monthly, category) {
-        var html = renderInsight(monthly) +
-                   detectHighExpense(category) +
-                   bestMonth(monthly) +
-                   detectLoss(monthly);
-        document.getElementById('insightGrid').innerHTML = html ||
-            '<div class="insight-card muted">ไม่มีข้อมูลเพียงพอสำหรับการวิเคราะห์</div>';
+        var grid = document.getElementById('insightGrid');
+        grid.innerHTML = '<div class="insight-card trend muted">กำลังวิเคราะห์ข้อมูล...</div>';
+        setTimeout(function() {
+            var html = renderInsight(monthly) +
+                       detectHighExpense(category) +
+                       bestMonth(monthly) +
+                       worstMonth(monthly) +
+                       detectLoss(monthly) +
+                       renderAdvice(monthly, category);
+            grid.innerHTML = html ||
+                '<div class="insight-card muted">ไม่มีข้อมูลเพียงพอสำหรับการวิเคราะห์</div>';
+        }, 500);
     }
 
     function renderRecentTable(items) {
@@ -420,6 +488,7 @@ function renderDashboardPage(liffId) {
         var labels      = rows.map(function(i) { return i.month || '-'; });
         var incomeData  = rows.map(function(i) { return Number(i.income  || 0); });
         var expenseData = rows.map(function(i) { return Number(i.expense || 0); });
+        var profitData  = rows.map(function(i) { return Number(i.income || 0) - Number(i.expense || 0); });
         if (monthlyChart) monthlyChart.destroy();
         monthlyChart = new Chart(canvas, {
             type: 'bar',
@@ -427,7 +496,19 @@ function renderDashboardPage(liffId) {
                 labels: labels,
                 datasets: [
                     { label: 'รายรับ',  data: incomeData,  backgroundColor: 'rgba(46,125,50,0.7)'  },
-                    { label: 'รายจ่าย', data: expenseData, backgroundColor: 'rgba(198,40,40,0.7)'  }
+                    { label: 'รายจ่าย', data: expenseData, backgroundColor: 'rgba(198,40,40,0.7)'  },
+                    {
+                        label: 'กำไร',
+                        type: 'line',
+                        data: profitData,
+                        borderColor: '#1565c0',
+                        tension: 0.3,
+                        fill: false,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        borderWidth: 2,
+                        yAxisID: 'y'
+                    }
                 ]
             },
             options: {
