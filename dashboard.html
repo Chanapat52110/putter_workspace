@@ -344,6 +344,8 @@ function renderDashboardPage(liffId) {
 
                 <script>
                     const LIFF_ID = ${JSON.stringify(liffId)};
+                    // Threshold: category is "high" if it exceeds this share of total expense
+                    const HIGH_EXPENSE_THRESHOLD = 0.4;
                     let currentUserId = null;
                     let dailyChart = null;
                     let categoryChart = null;
@@ -432,10 +434,10 @@ function renderDashboardPage(liffId) {
                     }
 
                     // ─── Decision Support Functions ─────────────────────────────────────────
-                    // Flags a category that accounts for more than 40% of total expense
+                    // Flags a category that accounts for more than HIGH_EXPENSE_THRESHOLD of total expense
                     function detectHighExpense(items) {
                         var total = items.reduce(function(s, i) { return s + i.total; }, 0);
-                        var high  = items.find(function(i) { return i.total / total > 0.4; });
+                        var high  = items.find(function(i) { return i.total / total > HIGH_EXPENSE_THRESHOLD; });
                         return high ? ('⚠️ ค่าใช้จ่ายสูงผิดปกติ: ' + high.category + ' (' + Math.round(high.total / total * 100) + '%)') : '';
                     }
 
@@ -482,7 +484,8 @@ function renderDashboardPage(liffId) {
 
                     // ─── Utility Functions ──────────────────────────────────────────────────
                     function formatCurrency(value) {
-                        return Number(value || 0).toLocaleString('th-TH') + ' บาท';
+                        // Use 'th-TH-u-nu-latn' to get Thai locale rules with Arabic (Latin) numerals
+                        return Number(value || 0).toLocaleString('th-TH-u-nu-latn') + ' บาท';
                     }
 
                     function formatType(type) {
