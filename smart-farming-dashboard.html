@@ -189,10 +189,97 @@
     .amount-income  { color: var(--green); font-weight: 700; }
     .amount-expense { color: var(--red);   font-weight: 700; }
 
+    /* ── STATUS BADGE ── */
+    .status-badge-wrap {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .status-badge-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 36px;
+      border-radius: 999px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      box-shadow: 0 6px 24px rgba(0,0,0,.13);
+      letter-spacing: .3px;
+      transition: transform .2s;
+    }
+    .status-badge-main:hover { transform: scale(1.03); }
+    .status-badge-main.good    { background: #dcfce7; color: #15803d; border: 2.5px solid #22c55e; }
+    .status-badge-main.neutral { background: #fef9c3; color: #78350f; border: 2.5px solid #eab308; }
+    .status-badge-main.bad     { background: #fee2e2; color: #b91c1c; border: 2.5px solid #ef4444; }
+    .status-badge-main .badge-sub { font-size: .85rem; font-weight: 600; opacity: .75; }
+
+    /* ── QUICK INSIGHT TEXT ── */
+    .quick-insight {
+      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 28px;
+      border-left: 4px solid var(--green);
+      line-height: 1.6;
+    }
+    .quick-insight span { color: var(--green); }
+    .quick-insight span.warn { color: #ef4444; }
+
+    /* ── INSIGHT GROUPS ── */
+    .insight-group { margin-bottom: 24px; }
+    .insight-group:last-child { margin-bottom: 0; }
+    .insight-group-title {
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #334155;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .insight-group .insights-grid { margin-bottom: 0; }
+
+    /* ── LATEST TAG ── */
+    .latest-tag {
+      font-size: .7rem;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* ── TABLE LATEST ROW ── */
+    tbody tr.latest-row { background: #f0fdf4 !important; }
+    tbody tr.latest-row td { font-weight: 600; }
+
+    /* ── FADE-IN ANIMATION ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeInUp .45s ease both; }
+    .fade-in-delay-1 { animation: fadeInUp .45s .08s ease both; }
+    .fade-in-delay-2 { animation: fadeInUp .45s .16s ease both; }
+    .fade-in-delay-3 { animation: fadeInUp .45s .24s ease both; }
+
+    /* ── SUMMARY VALUE BIGGER ── */
+    .summary-card .value { font-size: 2.1rem; }
+    .summary-card .label { font-size: .85rem; text-transform: none; letter-spacing: 0; color: #475569; }
+
     @media (max-width: 600px) {
       header { padding: 22px 16px 18px; }
       main { padding: 18px 12px 40px; }
-      .summary-card .value { font-size: 1.5rem; }
+      .summary-card .value { font-size: 1.65rem; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .status-badge-main { font-size: 1.2rem; padding: 14px 24px; }
+      .charts-grid { grid-template-columns: 1fr !important; }
+      .charts-grid .card[style*="span 2"] { grid-column: span 1 !important; }
     }
   </style>
 </head>
@@ -218,11 +305,17 @@
     <button id="reloadBtn">🔄 โหลดข้อมูลใหม่</button>
   </div>
 
+  <!-- ── STATUS BADGE ── -->
+  <div class="status-badge-wrap fade-in" id="statusBadgeWrap"></div>
+
   <!-- ── SUMMARY CARDS ── -->
   <div class="summary-grid" id="summaryGrid"></div>
 
+  <!-- ── QUICK INSIGHT TEXT ── -->
+  <div class="quick-insight fade-in-delay-1" id="quickInsight"></div>
+
   <!-- ── CHARTS ── -->
-  <div class="charts-grid">
+  <div class="charts-grid fade-in-delay-1">
     <div class="card chart-card" style="grid-column: span 2; min-width: 0;">
       <h3>📈 รายรับ vs รายจ่ายรายวัน</h3>
       <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
@@ -232,20 +325,20 @@
       <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
     </div>
     <div class="card chart-card">
-      <h3>🗂️ สัดส่วนค่าใช้จ่ายตามหมวดหมู่</h3>
+      <h3>🗂️ เงินไปอยู่ที่ไหน</h3>
       <div class="chart-wrap" style="max-width:300px;margin:0 auto;"><canvas id="categoryChart"></canvas></div>
     </div>
   </div>
 
   <!-- ── INSIGHTS ── -->
-  <section class="insights-section card" style="padding:24px;">
-    <h2>🧠 ระบบวิเคราะห์อัจฉริยะ</h2>
-    <div class="insights-grid" id="insightsGrid"></div>
+  <section class="insights-section card fade-in-delay-2" style="padding:24px;">
+    <h2>🧠 ผู้ช่วยวิเคราะห์ฟาร์ม</h2>
+    <div id="insightsGrid"></div>
   </section>
 
   <!-- ── TABLE ── -->
-  <section class="table-section card" style="padding:24px;">
-    <h2>📋 รายการธุรกรรมล่าสุด</h2>
+  <section class="table-section card fade-in-delay-3" style="padding:24px;">
+    <h2>📋 รายการล่าสุด</h2>
     <div class="table-wrap">
       <table>
         <thead>
@@ -342,34 +435,95 @@ function renderSummary(monthly) {
     {
       cls: 'income-card',
       icon: '💰',
-      label: 'รายรับทั้งหมด (YTD)',
+      label: 'รายรับทั้งหมด',
       value: fmt(totalIncome),
-      sub: 'ม.ค. – มิ.ย. 2024',
+      sub: 'ม.ค. – มิ.ย. 2567',
     },
     {
       cls: 'expense-card',
       icon: '💸',
-      label: 'รายจ่ายทั้งหมด (YTD)',
+      label: 'รายจ่ายทั้งหมด',
       value: fmt(totalExpense),
-      sub: 'ม.ค. – มิ.ย. 2024',
+      sub: 'ม.ค. – มิ.ย. 2567',
     },
     {
       cls: 'balance-card',
       icon: '🌾',
-      label: 'ยอดคงเหลือสุทธิ',
+      label: 'เงินคงเหลือ',
       value: fmt(balance),
-      sub: balance >= 0 ? '✅ มีกำไร' : '⚠️ ขาดทุน',
+      sub: balance >= 0 ? '✅ มีกำไรสุทธิ' : '⚠️ ขาดทุน',
     },
   ];
 
-  document.getElementById('summaryGrid').innerHTML = cards.map(c => `
-    <div class="card summary-card ${c.cls}">
+  document.getElementById('summaryGrid').innerHTML = cards.map((c, i) => `
+    <div class="card summary-card ${c.cls} fade-in" style="animation-delay:${i * 0.08}s">
       <div class="icon">${c.icon}</div>
       <div class="label">${c.label}</div>
       <div class="value">${c.value}</div>
       <div class="sub">${c.sub}</div>
     </div>
   `).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER STATUS BADGE
+// ═══════════════════════════════════════════════
+
+function renderStatusBadge(monthly) {
+  const n = monthly.length;
+  const last = monthly[n - 1];
+  const prev = monthly[n - 2];
+  const lastProfit = last.income - last.expense;
+  const prevProfit = prev.income - prev.expense;
+  const changePct = prevProfit !== 0 ? ((lastProfit - prevProfit) / prevProfit * 100) : 0;
+
+  let emoji, text, subText, cls;
+  if (lastProfit < 0) {
+    emoji = '🔴'; text = 'เสี่ยงขาดทุน'; cls = 'bad';
+    subText = `เดือน ${last.month} ขาดทุน ฿${Math.abs(lastProfit).toLocaleString('th-TH')}`;
+  } else if (changePct >= 5) {
+    emoji = '🟢'; text = 'กำไรดี'; cls = 'good';
+    subText = `กำไรเพิ่มขึ้น +${changePct.toFixed(0)}% จากเดือนก่อน`;
+  } else if (changePct <= -5) {
+    emoji = '🟡'; text = 'ทรงตัว'; cls = 'neutral';
+    subText = `กำไรลดลง ${Math.abs(changePct).toFixed(0)}% จากเดือนก่อน ควรระวัง`;
+  } else {
+    emoji = '🟡'; text = 'ทรงตัว'; cls = 'neutral';
+    subText = `กำไรใกล้เคียงเดิม ฿${lastProfit.toLocaleString('th-TH')} เดือนนี้`;
+  }
+
+  document.getElementById('statusBadgeWrap').innerHTML = `
+    <div class="status-badge-main ${cls}">
+      <span>${emoji}</span>
+      <span>${text}</span>
+      <span class="badge-sub">${subText}</span>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER QUICK INSIGHT TEXT
+// ═══════════════════════════════════════════════
+
+function renderQuickInsight(monthly) {
+  const n = monthly.length;
+  const last = monthly[n - 1];
+  const prev = monthly[n - 2];
+  const lastProfit = last.income - last.expense;
+  const prevProfit = prev.income - prev.expense;
+  const changePct = prevProfit !== 0 ? ((lastProfit - prevProfit) / prevProfit * 100).toFixed(1) : '0.0';
+
+  const catData = getMockCategoryData();
+  const totalCat = catData.reduce((s, c) => s + c.value, 0);
+  const topCat = catData.reduce((a, b) => b.value > a.value ? b : a);
+  const topPct = (topCat.value / totalCat * 100).toFixed(0);
+
+  const trendText = parseFloat(changePct) >= 0
+    ? `<span>กำไรเพิ่มขึ้น +${changePct}%</span> จากเดือนก่อน`
+    : `<span class="warn">กำไรลดลง ${Math.abs(changePct)}%</span> จากเดือนก่อน`;
+
+  document.getElementById('quickInsight').innerHTML =
+    `💬 เดือนนี้ ${trendText} และค่าใช้จ่าย<strong>${topCat.label}</strong>สูงที่สุด คิดเป็น ${topPct}% ของรายจ่ายทั้งหมด`;
 }
 
 // ═══════════════════════════════════════════════
@@ -428,6 +582,12 @@ function renderCharts(days) {
   // ── Monthly Chart ──
   destroyChart('monthly');
   const profits = monthly.map(m => m.income - m.expense);
+  const bestIdx  = profits.indexOf(Math.max(...profits));
+  const worstIdx = profits.indexOf(Math.min(...profits));
+
+  const incomeColors  = monthly.map((_, i) => i === bestIdx  ? 'rgba(21,128,61,.95)' : 'rgba(34,197,94,.65)');
+  const expenseColors = monthly.map((_, i) => i === worstIdx ? 'rgba(185,28,28,.95)'  : 'rgba(239,68,68,.55)');
+
   _charts['monthly'] = new Chart(document.getElementById('monthlyChart'), {
     type: 'bar',
     data: {
@@ -436,23 +596,24 @@ function renderCharts(days) {
         {
           label: 'รายรับ',
           data: monthly.map(m => m.income),
-          backgroundColor: 'rgba(34,197,94,.7)',
+          backgroundColor: incomeColors,
           borderRadius: 5,
         },
         {
           label: 'รายจ่าย',
           data: monthly.map(m => m.expense),
-          backgroundColor: 'rgba(239,68,68,.65)',
+          backgroundColor: expenseColors,
           borderRadius: 5,
         },
         {
           type: 'line',
-          label: 'กำไร',
+          label: 'กำไรสุทธิ',
           data: profits,
           borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59,130,246,.15)',
+          backgroundColor: 'rgba(59,130,246,.12)',
           pointBackgroundColor: profits.map(p => p >= 0 ? '#3b82f6' : '#ef4444'),
-          pointRadius: 5,
+          pointRadius: 6,
+          pointHoverRadius: 8,
           tension: 0.35,
           fill: true,
           yAxisID: 'y',
@@ -461,7 +622,21 @@ function renderCharts(days) {
     },
     options: {
       responsive: true,
-      plugins: { legend: { position: 'top' } },
+      animation: { duration: 800, easing: 'easeInOutQuart' },
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: {
+          mode: 'index',
+          callbacks: {
+            afterBody: (items) => {
+              const idx = items[0]?.dataIndex;
+              if (idx === bestIdx)  return ['🏆 เดือนกำไรสูงสุด'];
+              if (idx === worstIdx) return ['⚠️ เดือนกำไรต่ำสุด'];
+              return [];
+            }
+          }
+        }
+      },
       scales: {
         y: { beginAtZero: true, ticks: { callback: v => '฿' + (v/1000).toFixed(0) + 'K' } },
       },
@@ -500,13 +675,13 @@ function renderCharts(days) {
 function renderTable() {
   const txs = getMockTransactions();
 
-  document.getElementById('txBody').innerHTML = txs.map(tx => `
-    <tr>
-      <td>${tx.date}</td>
+  document.getElementById('txBody').innerHTML = txs.map((tx, i) => `
+    <tr class="${i === 0 ? 'latest-row' : ''}">
+      <td>${tx.date}${i === 0 ? ' <span class="latest-tag">ล่าสุด</span>' : ''}</td>
       <td><span class="badge-${tx.type}">${tx.type === 'income' ? '💰 รายรับ' : '💸 รายจ่าย'}</span></td>
       <td>${tx.category}</td>
       <td style="color:#475569">${tx.note}</td>
-      <td class="amount-${tx.type}" style="text-align:right">
+      <td class="amount-${tx.type}" style="text-align:right;font-size:1rem;">
         ${tx.type === 'income' ? '+' : '-'}฿${tx.amount.toLocaleString('th-TH')}
       </td>
     </tr>
@@ -519,64 +694,102 @@ function renderTable() {
 
 function renderInsight() {
   const monthly = getMockMonthlyData();
+  const catData  = getMockCategoryData();
   const n = monthly.length;
 
   // Trend: compare last 2 months
   const last  = monthly[n - 1];
   const prev  = monthly[n - 2];
-  const trendPct = (((last.income - last.expense) - (prev.income - prev.expense)) /
-                    Math.abs(prev.income - prev.expense) * 100).toFixed(1);
+  const lastProfit = last.income - last.expense;
+  const prevProfit = prev.income - prev.expense;
+  const trendPct = (prevProfit !== 0
+    ? ((lastProfit - prevProfit) / prevProfit * 100)
+    : 0).toFixed(1);
   const trendUp = parseFloat(trendPct) >= 0;
 
-  // High expense warning: find month where expense > 40% above avg expense
-  const avgExp = monthly.reduce((s, m) => s + m.expense, 0) / n;
-  const highExpMonth = monthly.find(m => m.expense > avgExp * 1.4);
+  // High expense category (>40% of total)
+  const totalCat = catData.reduce((s, c) => s + c.value, 0);
+  const highCats = catData.filter(c => c.value / totalCat > 0.40);
+
+  // Loss months
+  const lossMonths = monthly.filter(m => m.income - m.expense < 0);
 
   // Best / Worst month by profit
   const profits = monthly.map(m => ({ ...m, profit: m.income - m.expense }));
   const best  = profits.reduce((a, b) => b.profit > a.profit ? b : a);
   const worst = profits.reduce((a, b) => b.profit < a.profit ? b : a);
 
-  const insights = [
+  // ── Block A: สถานการณ์ตอนนี้ ──
+  const blockA = [
     {
       cls: trendUp ? 'good' : 'bad',
-      title: '📊 แนวโน้มกำไร',
+      title: trendUp ? '📈 กำไรกำลังเพิ่ม' : '📉 กำไรลดลง',
       body: trendUp
-        ? `กำไรเดือน ${last.month} เพิ่มขึ้น <strong>${trendPct}%</strong> เมื่อเทียบกับ ${prev.month} — แนวโน้มดีขึ้น 🎉`
-        : `กำไรเดือน ${last.month} ลดลง <strong>${Math.abs(trendPct)}%</strong> เมื่อเทียบกับ ${prev.month} — ควรตรวจสอบรายจ่าย ⚠️`,
-    },
-    {
-      cls: highExpMonth ? 'warn' : 'good',
-      title: '⚠️ แจ้งเตือนค่าใช้จ่ายสูง',
-      body: highExpMonth
-        ? `เดือน ${highExpMonth.month} มีค่าใช้จ่าย ฿${highExpMonth.expense.toLocaleString('th-TH')} — <strong>เกินค่าเฉลี่ย 40%+</strong> ควรวางแผนควบคุม`
-        : 'ค่าใช้จ่ายทุกเดือนอยู่ในเกณฑ์ปกติ ✅',
+        ? `เดือน ${last.month} กำไร <strong>฿${lastProfit.toLocaleString('th-TH')}</strong> เพิ่มขึ้น <strong>${trendPct}%</strong> จากเดือน ${prev.month} — ไปได้ดี! 🎉`
+        : `เดือน ${last.month} กำไร <strong>฿${lastProfit.toLocaleString('th-TH')}</strong> ลดลง <strong>${Math.abs(trendPct)}%</strong> จากเดือน ${prev.month} — ควรดูรายจ่ายเพิ่มเติม`,
     },
     {
       cls: 'good',
-      title: '🏆 เดือนที่กำไรสูงสุด',
-      body: `<strong>${best.month}</strong> — รายรับ ฿${best.income.toLocaleString()} รายจ่าย ฿${best.expense.toLocaleString()} กำไร ฿${best.profit.toLocaleString()}`,
-    },
-    {
-      cls: 'bad',
-      title: '📉 เดือนที่กำไรต่ำสุด',
-      body: `<strong>${worst.month}</strong> — ${worst.profit < 0
-        ? `ขาดทุน ฿${Math.abs(worst.profit).toLocaleString()} ต้องวิเคราะห์ต้นทุน`
-        : `กำไร ฿${worst.profit.toLocaleString()} ต่ำกว่าเดือนอื่น`}`,
-    },
-    {
-      cls: 'tip',
-      title: '💡 คำแนะนำสำหรับเกษตรกร',
-      body: `ปุ๋ยและค่าแรงคิดเป็นสัดส่วนสูงสุด แนะนำ: <strong>ลองใช้ปุ๋ยอินทรีย์</strong> ร่วมกับเครื่องจักรกลเพื่อลดต้นทุน และ<strong>วางแผนขายล่วงหน้า</strong>เพื่อประกันราคา`,
+      title: '🏆 เดือนที่ดีที่สุด',
+      body: `<strong>${best.month}</strong> — กำไร <strong>฿${best.profit.toLocaleString('th-TH')}</strong> (รับ ฿${best.income.toLocaleString()} จ่าย ฿${best.expense.toLocaleString()})`,
     },
   ];
 
-  document.getElementById('insightsGrid').innerHTML = insights.map(ins => `
-    <div class="insight-card ${ins.cls}">
-      <div class="i-title">${ins.title}</div>
-      <div class="i-body">${ins.body}</div>
-    </div>
-  `).join('');
+  // ── Block B: จุดที่ต้องระวัง ──
+  const blockB = [];
+  if (highCats.length > 0) {
+    highCats.forEach(c => {
+      blockB.push({
+        cls: 'warn',
+        title: `⚠️ ${c.label} สูงผิดปกติ`,
+        body: `ค่าใช้จ่าย<strong>${c.label}</strong> ฿${c.value.toLocaleString('th-TH')} คิดเป็น <strong>${(c.value/totalCat*100).toFixed(0)}%</strong> ของรายจ่ายทั้งหมด — ควรหาทางลดต้นทุนส่วนนี้`,
+      });
+    });
+  } else {
+    blockB.push({ cls: 'good', title: '✅ ค่าใช้จ่ายสมดุล', body: 'ค่าใช้จ่ายแต่ละหมวดอยู่ในสัดส่วนปกติ ไม่มีหมวดไหนสูงเกินไป' });
+  }
+  if (lossMonths.length > 0) {
+    blockB.push({
+      cls: 'bad',
+      title: '🔴 เดือนที่ขาดทุน',
+      body: lossMonths.map(m => `<strong>${m.month}</strong> ขาดทุน ฿${Math.abs(m.income - m.expense).toLocaleString('th-TH')}`).join(' · '),
+    });
+  }
+
+  // ── Block C: คำแนะนำ ──
+  const blockC = [
+    {
+      cls: 'tip',
+      title: '💡 สิ่งที่ควรทำต่อไป',
+      body: `<ul style="margin:0;padding-left:18px;line-height:1.9">
+        <li>ลองใช้<strong>ปุ๋ยอินทรีย์</strong>แทนปุ๋ยเคมีบางส่วนเพื่อลดต้นทุน</li>
+        <li>วางแผน<strong>ขายผลผลิตล่วงหน้า</strong>เพื่อล็อคราคาให้มั่นใจ</li>
+        <li>ใช้<strong>เครื่องจักรกล</strong>แทนแรงงานในขั้นตอนที่ทำได้</li>
+        <li>จดบันทึกรายจ่าย<strong>ทุกวัน</strong>เพื่อเห็นภาพรายจ่ายชัดขึ้น</li>
+      </ul>`,
+    },
+  ];
+
+  function renderBlock(title, items) {
+    return `
+      <div class="insight-group">
+        <div class="insight-group-title">${title}</div>
+        <div class="insights-grid">
+          ${items.map(ins => `
+            <div class="insight-card ${ins.cls}">
+              <div class="i-title">${ins.title}</div>
+              <div class="i-body">${ins.body}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('insightsGrid').innerHTML =
+    renderBlock('📊 สถานการณ์ตอนนี้', blockA) +
+    renderBlock('⚠️ จุดที่ต้องระวัง', blockB) +
+    renderBlock('🧭 คำแนะนำ', blockC);
 }
 
 // ═══════════════════════════════════════════════
@@ -587,7 +800,9 @@ function loadDashboard() {
   const days = parseInt(document.getElementById('daySelect').value, 10);
   const monthly = getMockMonthlyData();
 
+  renderStatusBadge(monthly);
   renderSummary(monthly);
+  renderQuickInsight(monthly);
   renderCharts(days);
   renderTable();
   renderInsight();
